@@ -23,18 +23,17 @@ int match(const char *str, const char *ptr)
     for(;; str++, ptr++) {
         switch(*ptr) {
             case 0:
-                return *str == 0;
+                return 1;
             case '*':
-                for(;; str++) {
+                for(;; str++)
                     if(match(str, ptr+1))
                         return 1;
-                    if(!*str)
-                        return 1;
-                }
+                    else if(!*str)
+                        return 0;
                 break;
             case '?':
                 if(!*str)
-                    return 1;
+                    return 0;
                 break;
             default:
                 if(*str != *ptr)
