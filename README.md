@@ -23,5 +23,5 @@ gcc mft.c -o mft
 
 - [ ] The pattern can be smaller than the string it is compared to
 - [ ] Find matches with any number of patterns
-- [ ] More memory for text
-- [ ] Use compile-time constants for number of memory
+- [x] More memory for text
+- [x] Use compile-time constants for number of memory

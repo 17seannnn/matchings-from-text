@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+enum { word_buffer_size = 256, text_buffer_size = 131072 };
+
 int string_length(const char *str)
 {
     const char *tmp;
@@ -44,7 +46,7 @@ int match(const char *str, const char *ptr)
 int catch_word(const char *txt, int i, char *word)
 {
     int tmp_i = 0;
-    char *tmp = malloc(sizeof(char)*256);
+    char *tmp = malloc(sizeof(char)*word_buffer_size);
     for(; txt[i] == 32 || txt[i] == 9 || txt[i] == 10; i++)
         if(!txt[i])
             return 0;
@@ -64,9 +66,9 @@ int main(int argc, char **argv)
     }
     int i = 0;
     char *pat = argv[1];
-    char *word = malloc(sizeof(char)*256);
-    char *txt = malloc(sizeof(char)*2048);
-    fgets(txt, 2048, stdin);
+    char *word = malloc(sizeof(char)*word_buffer_size);
+    char *txt = malloc(sizeof(char)*text_buffer_size);
+    fgets(txt, text_buffer_size, stdin);
     for(;;) {
         i = catch_word(txt, i, word);
         if(match(word, pat))
