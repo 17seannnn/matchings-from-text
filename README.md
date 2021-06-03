@@ -1,4 +1,4 @@
-# **MFT** - *matches from text*
+# **MFT** - *matches from text* v1.02
 
 ## How use it?
 
@@ -21,7 +21,10 @@ gcc mft.c -o mft
 
 ## Tasks
 
-- [ ] The pattern can be smaller than the string it is compared to
+- [ ] If the pattern isn't present at the beginning of the word,
+      it can't be recognized
 - [ ] Find matches with any number of patterns
+- [ ] Add comments in the code
+- [x] The pattern can be smaller than the string it is compared to
 - [x] More memory for text
 - [x] Use compile-time constants for number of memory
