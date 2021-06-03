@@ -1,6 +1,6 @@
 # **MFT** - *matches from text* v1.02
 
-## How use it?
+## How to use it?
 
 ```bash
 ./mft [Pattern]
