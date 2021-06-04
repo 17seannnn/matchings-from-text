@@ -42,15 +42,15 @@ int match(const char *str, const char *ptr)
     }
 }
 
-int catch_word(const char *txt, int i, char *word)
+int catch(const char *text, int i, char *word)
 {
     int tmp_i = 0;
     char *tmp = malloc(sizeof(char)*word_buffer_size);
-    for(; txt[i] == 32 || txt[i] == 9 || txt[i] == 10; i++)
-        if(!txt[i])
+    for(; text[i] == 32 || text[i] == 9 || text[i] == 10; i++)
+        if(!text[i])
             return 0;
-    for(; txt[i] != 32 && txt[i] != 9 && txt[i] != 10 && txt[i]; i++, tmp_i++)
-        tmp[tmp_i] = txt[i];
+    for(; text[i] != 32 && text[i] != 9 && text[i] != 10 && text[i]; i++, tmp_i++)
+        tmp[tmp_i] = text[i];
     tmp[tmp_i] = 0;
 // here can add switch for count line and pos
     string_copy(tmp, word);
@@ -58,7 +58,7 @@ int catch_word(const char *txt, int i, char *word)
     return i;
 }
 
-void preprocessing_ptr(char *ptr)
+void preprocess(char *ptr)
 {
     int len = string_length(ptr);
     ptr[len+1] = 0;
@@ -69,24 +69,23 @@ void preprocessing_ptr(char *ptr)
 
 int main(int argc, char **argv)
 {
-    if(argc != 2) {
+    if(argc < 2) {
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
     int i = 0;
     char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
-    char *txt = malloc(sizeof(char)*text_buffer_size);
-    preprocessing_ptr(ptr);
-    fgets(txt, text_buffer_size, stdin);
+    char *text = malloc(sizeof(char)*text_buffer_size);
+    preprocess(ptr);
+    fgets(text, text_buffer_size, stdin);
     for(;;) {
-        i = catch_word(txt, i, word);
+        if(!text[i] || !(i = catch(text, i, word)))
+            break;
         if(match(word, ptr))
             printf("%s\n", word);
-        if(!i || !txt[i])
-            break;
     }
     free(word);
-    free(txt);
+    free(text);
     return 0;
 }
