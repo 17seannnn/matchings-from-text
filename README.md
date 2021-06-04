@@ -1,4 +1,4 @@
-# **MFT** - *matches from text* v1.02
+# **MFT** - *matches from text* v1.03
 
 ## How to use it?
 
@@ -25,6 +25,7 @@ gcc mft.c -o mft
 - [ ] Show line number and position
 - [ ] Add \ for finding '?' and '\*'
 - [ ] Add comments in the code
+- [ ] Update README: add block about patterns
 - [x] If the pattern isn't present at the beginning of the word, it can't be recognized
 - [x] The pattern can be smaller than the string it is compared to
 - [x] More memory for text
