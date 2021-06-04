@@ -58,7 +58,14 @@ int catch_word(const char *txt, int i, char *word)
     return i;
 }
 
-// void preprocessing_ptr
+void preprocessing_ptr(char *ptr)
+{
+    int len = string_length(ptr);
+    ptr[len+1] = 0;
+    for(; len > 0; len--)
+        ptr[len] = ptr[len-1];
+    ptr[0] = '*';
+}
 
 int main(int argc, char **argv)
 {
@@ -70,6 +77,7 @@ int main(int argc, char **argv)
     char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *txt = malloc(sizeof(char)*text_buffer_size);
+    preprocessing_ptr(ptr);
     fgets(txt, text_buffer_size, stdin);
     for(;;) {
         i = catch_word(txt, i, word);
