@@ -52,10 +52,13 @@ int catch_word(const char *txt, int i, char *word)
     for(; txt[i] != 32 && txt[i] != 9 && txt[i] != 10 && txt[i]; i++, tmp_i++)
         tmp[tmp_i] = txt[i];
     tmp[tmp_i] = 0;
+// here can add switch for count line and pos
     string_copy(tmp, word);
     free(tmp);
     return i;
 }
+
+// void preprocessing_ptr
 
 int main(int argc, char **argv)
 {
@@ -64,13 +67,13 @@ int main(int argc, char **argv)
         return 1;
     }
     int i = 0;
-    char *pat = argv[1];
+    char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *txt = malloc(sizeof(char)*text_buffer_size);
     fgets(txt, text_buffer_size, stdin);
     for(;;) {
         i = catch_word(txt, i, word);
-        if(match(word, pat))
+        if(match(word, ptr))
             printf("%s\n", word);
         if(!i || !txt[i])
             break;

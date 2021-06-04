@@ -24,6 +24,8 @@ gcc mft.c -o mft
 - [ ] If the pattern isn't present at the beginning of the word,
       it can't be recognized
 - [ ] Find matches with any number of patterns
+- [ ] Show line number and position
+- [ ] Add \ for finding '?' and '*'
 - [ ] Add comments in the code
 - [x] The pattern can be smaller than the string it is compared to
 - [x] More memory for text
