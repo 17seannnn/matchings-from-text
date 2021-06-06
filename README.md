@@ -1,4 +1,4 @@
-# **MFT** - *matches from text* v1.05
+# **MFT** - *matches from text* v1.06
 
 ## How to use it?
 
@@ -22,10 +22,11 @@ gcc mft.c -o mft
 ## Tasks
 
 - [ ] Find matches with any number of patterns
-- [ ] Show line number and position
 - [ ] Add comments in the code
 - [ ] Update README: add block about patterns
 - [ ] Add -q param to show words without line and pos
+- [ ] Add help param
+- [x] Show line number and position
 - [x] Add \ for finding '?', '\*' and '\\'
 - [x] If the pattern isn't present at the beginning of the word, it can't be recognized
 - [x] The pattern can be smaller than the string it is compared to
