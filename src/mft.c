@@ -129,19 +129,25 @@ int main(int argc, char **argv)
     string_copy(text, text_cmp);
     for(;;) {
         res = catch(text, word, &text_pos, &line, &pos);
+        switch(res) {
+            case status_read:
+                if(match(word, ptr))
+                    printf("%d:%d:%s\n", line, pos, word);
+                pos += string_length(word);
+                break;
+            case status_linebreak:
+                fgets(text, text_buffer_size, stdin);
+                if(string_compare(text, text_cmp)) {
+                    res = status_stop;
+                    break;
+                }
+                string_copy(text, text_cmp);
+                text_pos = 0;
+                pos = 1;
+                break;
+        }
         if(res == status_stop)
             break;
-        if(res == status_read && match(word, ptr))
-            printf("%d:%d:%s\n", line, pos, word);
-        pos += string_length(word);
-        if(res == status_linebreak) {
-            fgets(text, text_buffer_size, stdin);
-            if(string_compare(text, text_cmp))
-                break;
-            string_copy(text, text_cmp);
-            text_pos = 0;
-            pos = 1;
-        }
     }
     free(word);
     free(text);
