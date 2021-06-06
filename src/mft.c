@@ -3,7 +3,7 @@
 
 enum { word_buffer_size = 256, text_buffer_size = 131072,
        star_replace = 1, question_replace = 2, empty_replace = 3,
-       status_stop = 0, status_continue = 1, status_linebreak = 2 };
+       status_stop = 0, status_read = 1, status_linebreak = 2 };
 
 int string_length(const char *str)
 {
@@ -64,25 +64,31 @@ int match(const char *str, const char *ptr)
     }
 }
 
-int catch(char **text, char *word)
+int catch(char **text, char *word, int *line, int *pos)
 {
     char *new = *text;
     for(; *new == 32 || *new == 9 || *new == 10 || !*new; new++) {
-        if(!*new)
-            return status_stop;
-        else if(*new == 9)
-            return status_linebreak;
+        switch(*new) {
+            case 32:
+            case 9:
+                (*pos)++;
+                break;
+            case 10:
+                (*line)++;
+                return status_linebreak;
+            case 0:
+                return status_stop;
+        }
     }
     int tmp_i = 0;
     char *tmp = malloc(sizeof(char)*word_buffer_size);
-    for(; *new != 32 && *new != 9 &&
-                                    *new != 10 && *new; new++, tmp_i++)
+    for(; *new != 32 && *new != 9 && *new != 10 && *new; new++, tmp_i++)
         tmp[tmp_i] = *new;
     tmp[tmp_i] = 0;
     string_copy(tmp, word);
     free(tmp);
     *text = new;
-    return status_continue;
+    return status_read;
 }
 
 void preprocess(char *ptr)
@@ -115,26 +121,34 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int res = 0; // temp init
+    int res, line = 1, pos = 1;
     char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *text = malloc(sizeof(char)*text_buffer_size);
+    char *text_cmp = malloc(sizeof(char)*text_buffer_size);
     char *first = text;
     preprocess(ptr);
     fgets(text, text_buffer_size, stdin);
+    string_copy(text, text_cmp);
     for(;;) {
-        // temp
-        if(res == status_linebreak)
-            break;
-        // 
-        res = catch(&text, word);
+        res = catch(&text, word, &line, &pos);
         if(res == status_stop)
             break;
-        if(res == status_continue && match(word, ptr))
-            printf("%s\n", word);
+        if(res == status_read && match(word, ptr))
+            printf("%d:%d:%s\n", line, pos, word);
+        pos += string_length(word);
+        if(res == status_linebreak) {
+            text = first;
+            fgets(text, text_buffer_size, stdin);
+            if(string_compare(text, text_cmp))
+                break;
+            string_copy(text, text_cmp);
+            pos = 1;
+        }
     }
     free(word);
     text = first;
     free(text);
+    free(text_cmp);
     return 0;
 }
