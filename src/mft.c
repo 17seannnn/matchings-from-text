@@ -64,11 +64,11 @@ int match(const char *str, const char *ptr)
     }
 }
 
-int catch(char **text, char *word, int *line, int *pos)
+int catch(char *text, char *word, int *text_pos, int *line, int *pos)
 {
-    char *new = *text;
-    for(; *new == 32 || *new == 9 || *new == 10 || !*new; new++) {
-        switch(*new) {
+    int i = *text_pos;
+    for(; text[i] == 32 || text[i] == 9 || text[i] == 10 || !text[i]; i++) {
+        switch(text[i]) {
             case 32:
             case 9:
                 (*pos)++;
@@ -80,14 +80,15 @@ int catch(char **text, char *word, int *line, int *pos)
                 return status_stop;
         }
     }
-    int tmp_i = 0;
+    int tmp_pos = 0;
     char *tmp = malloc(sizeof(char)*word_buffer_size);
-    for(; *new != 32 && *new != 9 && *new != 10 && *new; new++, tmp_i++)
-        tmp[tmp_i] = *new;
-    tmp[tmp_i] = 0;
+    for(; text[i] != 32 && text[i] != 9 && text[i] != 10 &&
+                                                 text[i]; i++, tmp_pos++)
+        tmp[tmp_pos] = text[i];
+    tmp[tmp_pos] = 0;
     string_copy(tmp, word);
     free(tmp);
-    *text = new;
+    *text_pos = i;
     return status_read;
 }
 
@@ -121,33 +122,31 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int res, line = 1, pos = 1;
+    int res, text_pos = 0, line = 1, pos = 1;
     char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *text = malloc(sizeof(char)*text_buffer_size);
     char *text_cmp = malloc(sizeof(char)*text_buffer_size);
-    char *first = text;
     preprocess(ptr);
     fgets(text, text_buffer_size, stdin);
     string_copy(text, text_cmp);
     for(;;) {
-        res = catch(&text, word, &line, &pos);
+        res = catch(text, word, &text_pos, &line, &pos);
         if(res == status_stop)
             break;
         if(res == status_read && match(word, ptr))
             printf("%d:%d:%s\n", line, pos, word);
         pos += string_length(word);
         if(res == status_linebreak) {
-            text = first;
             fgets(text, text_buffer_size, stdin);
             if(string_compare(text, text_cmp))
                 break;
             string_copy(text, text_cmp);
+            text_pos = 0;
             pos = 1;
         }
     }
     free(word);
-    text = first;
     free(text);
     free(text_cmp);
     return 0;
