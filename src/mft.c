@@ -20,6 +20,15 @@ void string_copy(const char *src, char *dst)
     *dst = 0;
 }
 
+int string_compare(const char *cmp1, const char *cmp2)
+{
+    for(; *cmp1; cmp1++, cmp2++) {
+        if(*cmp1 != *cmp2)
+            return 0;
+    }
+    return 1;
+}
+
 int match(const char *str, const char *ptr)
 {
     for(;; str++, ptr++) {
@@ -55,21 +64,25 @@ int match(const char *str, const char *ptr)
     }
 }
 
-int catch(const char *text, int i, char *word)
+int catch(char **text, char *word)
 {
+    char *new = *text;
+    for(; *new == 32 || *new == 9 || *new == 10 || !*new; new++) {
+        if(!*new)
+            return 0;
+        else if(*new == 9)
+            return 2;
+    }
     int tmp_i = 0;
     char *tmp = malloc(sizeof(char)*word_buffer_size);
-    for(; text[i] == 32 || text[i] == 9 || text[i] == 10; i++)
-        if(!text[i])
-            return 0;
-    for(; text[i] != 32 && text[i] != 9 &&
-                                    text[i] != 10 && text[i]; i++, tmp_i++)
-        tmp[tmp_i] = text[i];
+    for(; *new != 32 && *new != 9 &&
+                                    *new != 10 && *new; new++, tmp_i++)
+        tmp[tmp_i] = *new;
     tmp[tmp_i] = 0;
-// todo here can add switch for count line and pos
     string_copy(tmp, word);
     free(tmp);
-    return i;
+    *text = new;
+    return 1;
 }
 
 void preprocess(char *ptr)
@@ -102,19 +115,26 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int i = 0;
+    int res = 0; // temp init
     char *ptr = argv[1];
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *text = malloc(sizeof(char)*text_buffer_size);
+    char *first = text;
     preprocess(ptr);
     fgets(text, text_buffer_size, stdin);
     for(;;) {
-        if(!text[i] || !(i = catch(text, i, word)))
+        // temp
+        if(res == 2)
             break;
-        if(match(word, ptr))
+        // 
+        res = catch(&text, word);
+        if(!res)
+            break;
+        if(res == 1 && match(word, ptr))
             printf("%s\n", word);
     }
     free(word);
+    text = first;
     free(text);
     return 0;
 }
