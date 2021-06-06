@@ -1,4 +1,4 @@
-# **MFT** - *matches from text* v1.06
+# **MFT** - *matches from text* v1.07
 
 ## How to use it?
 
