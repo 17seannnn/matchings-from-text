@@ -80,14 +80,11 @@ int catch(char *text, char *word, int *text_pos, int *line, int *pos)
                 return status_stop;
         }
     }
-    int tmp_pos = 0;
-    char *tmp = malloc(sizeof(char)*word_buffer_size);
+    int word_pos = 0;
     for(; text[i] != 32 && text[i] != 9 && text[i] != 10 &&
-                                                 text[i]; i++, tmp_pos++)
-        tmp[tmp_pos] = text[i];
-    tmp[tmp_pos] = 0;
-    string_copy(tmp, word);
-    free(tmp);
+                                                 text[i]; i++, word_pos++)
+        word[word_pos] = text[i];
+    word[word_pos] = 0;
     *text_pos = i;
     return status_read;
 }
