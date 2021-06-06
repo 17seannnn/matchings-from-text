@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 enum { word_buffer_size = 256, text_buffer_size = 131072,
-       star_replacement = 1, question_replacement = 2,
-       empty_replacement = 3 };
+       star_replace = 1, question_replace = 2, empty_replace = 3,
+       status_stop = 0, status_continue = 1, status_linebreak = 2 };
 
 int string_length(const char *str)
 {
@@ -46,15 +46,15 @@ int match(const char *str, const char *ptr)
                 if(!*str)
                     return 0;
                 break;
-            case star_replacement:
+            case star_replace:
                 if(*str != '*')
                     return 0;
                 break;
-            case question_replacement:
+            case question_replace:
                 if(*str != '?')
                     return 0;
                 break;
-            case empty_replacement:
+            case empty_replace:
                 str--;
                 break;
             default:
@@ -69,9 +69,9 @@ int catch(char **text, char *word)
     char *new = *text;
     for(; *new == 32 || *new == 9 || *new == 10 || !*new; new++) {
         if(!*new)
-            return 0;
+            return status_stop;
         else if(*new == 9)
-            return 2;
+            return status_linebreak;
     }
     int tmp_i = 0;
     char *tmp = malloc(sizeof(char)*word_buffer_size);
@@ -82,7 +82,7 @@ int catch(char **text, char *word)
     string_copy(tmp, word);
     free(tmp);
     *text = new;
-    return 1;
+    return status_continue;
 }
 
 void preprocess(char *ptr)
@@ -98,13 +98,13 @@ void preprocess(char *ptr)
         if((*ptr == '*' || *ptr == '?') && *(ptr-1) == '\\') {
             switch(*ptr) {
                 case '*':
-                    *ptr = star_replacement;
+                    *ptr = star_replace;
                     break;
                 case '?':
-                    *ptr = question_replacement;
+                    *ptr = question_replace;
                     break;
             }
-            *(ptr-1) = empty_replacement;
+            *(ptr-1) = empty_replace;
         }
     }
 }
@@ -124,13 +124,13 @@ int main(int argc, char **argv)
     fgets(text, text_buffer_size, stdin);
     for(;;) {
         // temp
-        if(res == 2)
+        if(res == status_linebreak)
             break;
         // 
         res = catch(&text, word);
-        if(!res)
+        if(res == status_stop)
             break;
-        if(res == 1 && match(word, ptr))
+        if(res == status_continue && match(word, ptr))
             printf("%s\n", word);
     }
     free(word);
