@@ -69,6 +69,7 @@ int match(const char *str, const char *pat)
 int catch(char *text, char *word, int *text_pos, int *line, int *pos)
 {
     int i = *text_pos;
+/* Skip empty spaces and process linebreak and stop statuses */
     for(; text[i] == 32 || text[i] == 9 || text[i] == 10 || !text[i]; i++) {
         switch(text[i]) {
             case 32:
@@ -83,6 +84,7 @@ int catch(char *text, char *word, int *text_pos, int *line, int *pos)
         }
     }
     int word_pos = 0;
+/* Catch a word */
     for(; text[i] != 32 && text[i] != 9 && text[i] != 10 &&
                                                  text[i]; i++, word_pos++)
         word[word_pos] = text[i];
@@ -93,8 +95,8 @@ int catch(char *text, char *word, int *text_pos, int *line, int *pos)
 
 void preprocess(char *pat)
 {
-/* Set '*' for better search */
     int len = string_length(pat);
+/* Set '*' for better search */
     pat[len+1] = 0;
     for(; len > 0; len--)
         pat[len] = pat[len-1];
@@ -138,12 +140,14 @@ int main(int argc, char **argv)
         return 1;
     }
     int i, k, res, quiet, pat_count, text_pos, line, pos;
+/* Check a param */
     quiet = 0;
     if(string_compare(argv[1], "--help"))
         show_help();
     else if(string_compare(argv[1], "-q") ||
             string_compare(argv[1], "--quiet"))
         quiet = 1;
+/* Allocate dynamic memory */
     char **pat = malloc(sizeof(char*)*patterns_buffer_size);
     for(i = 0; i < patterns_buffer_size; i++)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
@@ -151,6 +155,7 @@ int main(int argc, char **argv)
     char *text = malloc(sizeof(char)*text_buffer_size);
     char *text_cmp = malloc(sizeof(char)*text_buffer_size);
     k = quiet ? 2 : 1;  /* If have param then start loop with 2 */
+    /* Copy patterns from argv */
     for(i = 0; argv[i+k] && i < patterns_buffer_size; i++) {
         string_copy(argv[i+k], pat[i]);
         preprocess(pat[i]);
@@ -177,6 +182,11 @@ int main(int argc, char **argv)
                 break;
             case status_linebreak:
                 fgets(text, text_buffer_size, stdin);
+            /*
+             * If the current text is the same
+             * as the old one, it means that
+             * there is nothing more to read
+             */ 
                 if(string_compare(text, text_cmp)) {
                     res = status_stop;
                     break;
