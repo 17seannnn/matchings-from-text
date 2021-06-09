@@ -1,10 +1,14 @@
-# **MFT** - *matches from text* v1.07
+# **MFT** - *matches from text* v1.09
 
 ## How to use it?
 
 ```bash
-./mft "[Pattern]"
+./mft "-param" "[Pattern1]" "[Pattern2]"...
 ```
+Params:
+-q || --quiet = show matches without line and position
+--help = show help
+
 Then you can enter the string
 or do something like this:
 ```bash
@@ -21,11 +25,12 @@ gcc mft.c -o mft
 
 ## Tasks
 
-- [ ] Find matches with any number of patterns
 - [ ] Add comments in the code
 - [ ] Update README: add block about patterns
-- [ ] Add -q param to show words without line and pos
-- [ ] Add help param
+
+- [ ] Add help param ***partially done***
+- [x] Find matches with any number of patterns
+- [x] Add -q param to show words without line and pos
 - [x] Show line number and position
 - [x] Add \ for finding '?', '\*' and '\\'
 - [x] If the pattern isn't present at the beginning of the word, it can't be recognized
