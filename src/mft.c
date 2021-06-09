@@ -120,7 +120,13 @@ void show_help()
     printf("Usage: mft \"-param\" \"[Pattern1]\" \"[Pattern2]\"...\n\n\
 Params: -q || --quiet = show matches without line and position\n\
         --help = show help\n\n\
-todo: about patterns\n");
+Special characters for patterns:\n\
+        '*' = any characters of any length\n\
+        '?' = any character, but can not be empty\n\
+        '\\' = place it before *, ? and \\ for finding star,\n\
+                                           question mark and backslash\n\
+Examples:\n\
+\"?orem\" \"b*ye\" \"questions\\?\" \"\\*stars\\*\" \"\\\\\"\n");
     exit(0);
 }
 
