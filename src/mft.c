@@ -117,7 +117,8 @@ void preprocess(char *ptr)
 
 void show_help()
 {
-    printf("Usage: mft \"-param\" \"[Pattern1]\" \"[Pattern2]\"...\n\n\
+    printf("\
+Usage: mft \"-param\" \"[Pattern1]\" \"[Pattern2]\"...\n\n\
 Params: -q || --quiet = show matches without line and position\n\
         --help = show help\n\n\
 Special characters for patterns:\n\
@@ -126,7 +127,7 @@ Special characters for patterns:\n\
         '\\' = place it before *, ? and \\ for finding star,\n\
                                            question mark and backslash\n\
 Examples:\n\
-\"?orem\" \"b*ye\" \"questions\\?\" \"\\*stars\\*\" \"\\\\\"\n");
+\"?orem\" \"b*ye\" \"questions\\?\" \"\\*stars\\*\" \"\\\\\"\n\n");
     exit(0);
 }
 
@@ -136,7 +137,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int i, k, res, quiet = 0, ptr_count, text_pos = 0, line = 1, pos = 1;
+    int i, k, res, quiet, ptr_count, text_pos, line, pos;
+    quiet = 0;
     if(string_compare(argv[1], "--help"))
         show_help();
     else if(string_compare(argv[1], "-q") ||
@@ -154,6 +156,8 @@ int main(int argc, char **argv)
         preprocess(ptr[i]);
     }
     ptr_count = i;
+    text_pos = 0;
+    line = pos = 1;
     fgets(text, text_buffer_size, stdin);
     string_copy(text, text_cmp);
     for(;;) {
