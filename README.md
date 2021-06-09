@@ -1,4 +1,4 @@
-# **MFT** - *matches from text* v1.09
+# **MFT** - *matches from text* v1.10
 
 ## How to use it?
 
@@ -40,7 +40,7 @@ gcc mft.c -o mft
 
 ## Tasks
 
-- [ ] Add comments in the code
+- [x] Add comments in the code
 - [x] Update README: add block about patterns
 - [x] Add --help param
 - [x] Find matches with any number of patterns
