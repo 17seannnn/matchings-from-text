@@ -31,15 +31,15 @@ int string_compare(const char *cmp1, const char *cmp2)
     return 1;
 }
 
-int match(const char *str, const char *ptr)
+int match(const char *str, const char *pat)
 {
-    for(;; str++, ptr++) {
-        switch(*ptr) {
+    for(;; str++, pat++) {
+        switch(*pat) {
             case 0:
                 return 1;
             case '*':
                 for(;; str++) {
-                    if(match(str, ptr+1))
+                    if(match(str, pat+1))
                         return 1;
                     else if(!*str)
                         return 0;
@@ -60,7 +60,7 @@ int match(const char *str, const char *ptr)
                 str--;
                 break;
             default:
-                if(*str != *ptr)
+                if(*str != *pat)
                     return 0;
         }
     }
@@ -91,26 +91,26 @@ int catch(char *text, char *word, int *text_pos, int *line, int *pos)
     return status_read;
 }
 
-void preprocess(char *ptr)
+void preprocess(char *pat)
 {
 /* Set '*' for better search */
-    int len = string_length(ptr);
-    ptr[len+1] = 0;
+    int len = string_length(pat);
+    pat[len+1] = 0;
     for(; len > 0; len--)
-        ptr[len] = ptr[len-1];
-    ptr[0] = '*';
+        pat[len] = pat[len-1];
+    pat[0] = '*';
 /* Change to special characters to match */
-    for(; *ptr; ptr++) {
-        if((*ptr == '*' || *ptr == '?') && *(ptr-1) == '\\') {
-            switch(*ptr) {
+    for(; *pat; pat++) {
+        if((*pat == '*' || *pat == '?') && *(pat-1) == '\\') {
+            switch(*pat) {
                 case '*':
-                    *ptr = star_replace;
+                    *pat = star_replace;
                     break;
                 case '?':
-                    *ptr = question_replace;
+                    *pat = question_replace;
                     break;
             }
-            *(ptr-1) = empty_replace;
+            *(pat-1) = empty_replace;
         }
     }
 }
@@ -137,25 +137,25 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int i, k, res, quiet, ptr_count, text_pos, line, pos;
+    int i, k, res, quiet, pat_count, text_pos, line, pos;
     quiet = 0;
     if(string_compare(argv[1], "--help"))
         show_help();
     else if(string_compare(argv[1], "-q") ||
             string_compare(argv[1], "--quiet"))
         quiet = 1;
-    char **ptr = malloc(sizeof(char*)*patterns_buffer_size);
+    char **pat = malloc(sizeof(char*)*patterns_buffer_size);
     for(i = 0; i < patterns_buffer_size; i++)
-        ptr[i] = malloc(sizeof(char)*word_buffer_size);
+        pat[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *text = malloc(sizeof(char)*text_buffer_size);
     char *text_cmp = malloc(sizeof(char)*text_buffer_size);
     k = quiet ? 2 : 1;  /* If have param then start loop with 2 */
     for(i = 0; argv[i+k] && i < patterns_buffer_size; i++) {
-        string_copy(argv[i+k], ptr[i]);
-        preprocess(ptr[i]);
+        string_copy(argv[i+k], pat[i]);
+        preprocess(pat[i]);
     }
-    ptr_count = i;
+    pat_count = i;
     text_pos = 0;
     line = pos = 1;
     fgets(text, text_buffer_size, stdin);
@@ -164,8 +164,8 @@ int main(int argc, char **argv)
         res = catch(text, word, &text_pos, &line, &pos);
         switch(res) {
             case status_read:
-                for(i = 0; i < ptr_count; i++) {
-                    if(match(word, ptr[i])) {
+                for(i = 0; i < pat_count; i++) {
+                    if(match(word, pat[i])) {
                         if(quiet)
                             printf("%s\n", word);
                         else
@@ -190,8 +190,8 @@ int main(int argc, char **argv)
             break;
     }
     for(i = 0; i < patterns_buffer_size; i++)
-        free(ptr[i]);
-    free(ptr);
+        free(pat[i]);
+    free(pat);
     free(word);
     free(text);
     free(text_cmp);
