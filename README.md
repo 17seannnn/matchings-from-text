@@ -8,7 +8,7 @@
 Then you can enter the string
 or do something like this:
 ```bash
-cat ../test/text.txt | ./mft "lorem"
+cat ../test/text.txt | ./mft "lorem" "\?" "u*a"
 ```
 
 ### Patterns
