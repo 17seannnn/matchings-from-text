@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { word_buffer_size = 256, text_buffer_size = 131072,
+enum { patterns_buffer_size = 32,
+       word_buffer_size = 256,
+       text_buffer_size = 131072,
        star_replace = 1, question_replace = 2, empty_replace = 3,
        status_stop = 0, status_read = 1, status_linebreak = 2 };
 
@@ -91,13 +93,13 @@ int catch(char *text, char *word, int *text_pos, int *line, int *pos)
 
 void preprocess(char *ptr)
 {
-// Set '*' for better search
+/* Set '*' for better search */
     int len = string_length(ptr);
     ptr[len+1] = 0;
     for(; len > 0; len--)
         ptr[len] = ptr[len-1];
     ptr[0] = '*';
-// Change to special characters to match
+/* Change to special characters to match */
     for(; *ptr; ptr++) {
         if((*ptr == '*' || *ptr == '?') && *(ptr-1) == '\\') {
             switch(*ptr) {
@@ -113,26 +115,54 @@ void preprocess(char *ptr)
     }
 }
 
+void show_help()
+{
+    printf("Usage: mft \"-param\" \"[Pattern1]\" \"[Pattern2]\"...\n\n\
+Params: -q || --quiet = show matches without line and position\n\
+        --help = show help\n\n\
+todo: about patterns\n");
+    exit(0);
+}
+
 int main(int argc, char **argv)
 {
     if(argc < 2) {
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int res, text_pos = 0, line = 1, pos = 1;
-    char *ptr = argv[1];
+    int i, k, res, quiet = 0, ptr_count, text_pos = 0, line = 1, pos = 1;
+    if(string_compare(argv[1], "--help"))
+        show_help();
+    else if(string_compare(argv[1], "-q") ||
+            string_compare(argv[1], "--quiet"))
+        quiet = 1;
+    char **ptr = malloc(sizeof(char*)*patterns_buffer_size);
+    for(i = 0; i < patterns_buffer_size; i++)
+        ptr[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
     char *text = malloc(sizeof(char)*text_buffer_size);
     char *text_cmp = malloc(sizeof(char)*text_buffer_size);
-    preprocess(ptr);
+    k = quiet ? 2 : 1;  /* If have param then start loop with 2 */
+    for(i = 0; argv[i+k] && i < patterns_buffer_size; i++) {
+        string_copy(argv[i+k], ptr[i]);
+        preprocess(ptr[i]);
+    }
+    ptr_count = i;
     fgets(text, text_buffer_size, stdin);
     string_copy(text, text_cmp);
     for(;;) {
         res = catch(text, word, &text_pos, &line, &pos);
         switch(res) {
             case status_read:
-                if(match(word, ptr))
-                    printf("%d:%d:%s\n", line, pos, word);
+                for(i = 0; i < ptr_count; i++) {
+                    if(match(word, ptr[i])) {
+                        if(quiet)
+                            printf("%s\n", word);
+                        else
+                            printf("%d:%d:%s\n", line, pos, word);
+                        break;
+                    }
+                }
                 pos += string_length(word);
                 break;
             case status_linebreak:
@@ -149,6 +179,9 @@ int main(int argc, char **argv)
         if(res == status_stop)
             break;
     }
+    for(i = 0; i < patterns_buffer_size; i++)
+        free(ptr[i]);
+    free(ptr);
     free(word);
     free(text);
     free(text_cmp);
