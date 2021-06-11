@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { patterns_buffer_size = 32,
-       word_buffer_size = 256,
-       text_buffer_size = 131072,
+enum { patterns_buffer_size = 32, word_buffer_size = 256,
        star_replace = 1, question_replace = 2, empty_replace = 3,
-       status_stop = 0, status_read = 1, status_linebreak = 2 };
+       status_read = 1, status_readln = 2, status_ln = 0, status_readEOF = 3 };
 
 int string_length(const char *str)
 {
@@ -66,37 +64,41 @@ int match(const char *str, const char *pat)
     }
 }
 
-int catch(char *text, char *word, int *text_pos, int *line, int *pos)
+int catch(char *word, int *line, int *pos)
 {
-    int i = *text_pos;
 /* Skip empty spaces and process linebreak and stop statuses */
-    for(; text[i] == 32 || text[i] == 9 || text[i] == 10 || !text[i]; i++) {
-        switch(text[i]) {
-            case 32:
-            case 9:
-                (*pos)++;
+    int c, i;
+    while((c = getchar()) == ' ' || c == 9 || c == '\n' || c == EOF) {
+        switch(c) {
+            case ' ':
+            case 9:     /* Tabulation */
+                ++*pos;
                 break;
-            case 10:
-                (*line)++;
-                return status_linebreak;
-            case 0:
-                return status_stop;
+            case '\n':
+                return status_ln;
+            case EOF:
+                return EOF;
         }
     }
-    int word_pos = 0;
 /* Catch a word */
-    for(; text[i] != 32 && text[i] != 9 && text[i] != 10 &&
-                                                 text[i]; i++, word_pos++)
-        word[word_pos] = text[i];
-    word[word_pos] = 0;
-    *text_pos = i;
+    for(i = 0; c != ' ' && c != 9 && c != '\n' && c != EOF; i++) {
+        word[i] = c;
+        c = getchar();
+    }
+    word[i] = 0;
+    switch(c) {
+        case '\n':
+            return status_readln;
+        case EOF:
+            return status_readEOF;
+    }
     return status_read;
 }
 
 void preprocess(char *pat)
 {
-    int len = string_length(pat);
 /* Set '*' for better search */
+    int len = string_length(pat);
     pat[len+1] = 0;
     for(; len > 0; len--)
         pat[len] = pat[len-1];
@@ -139,7 +141,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Wrong count of parameters\n");
         return 1;
     }
-    int i, k, res, quiet, pat_count, text_pos, line, pos;
+    int i, k, res, quiet, pat_count, line, pos;
 /* Check a param */
     quiet = 0;
     if(string_compare(argv[1], "--help"))
@@ -147,63 +149,42 @@ int main(int argc, char **argv)
     else if(string_compare(argv[1], "-q") ||
             string_compare(argv[1], "--quiet"))
         quiet = 1;
-/* Allocate dynamic memory */
     char **pat = malloc(sizeof(char*)*patterns_buffer_size);
     for(i = 0; i < patterns_buffer_size; i++)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
-    char *text = malloc(sizeof(char)*text_buffer_size);
-    char *text_cmp = malloc(sizeof(char)*text_buffer_size);
+/* Copy and preprocess patterns from argv */
     k = quiet ? 2 : 1;  /* If have param then start loop with 2 */
-    /* Copy patterns from argv */
     for(i = 0; argv[i+k] && i < patterns_buffer_size; i++) {
         string_copy(argv[i+k], pat[i]);
         preprocess(pat[i]);
     }
     pat_count = i;
-    text_pos = 0;
     line = pos = 1;
-    fgets(text, text_buffer_size, stdin);
-    string_copy(text, text_cmp);
-    for(;;) {
-        res = catch(text, word, &text_pos, &line, &pos);
-        switch(res) {
-            case status_read:
-                for(i = 0; i < pat_count; i++) {
-                    if(match(word, pat[i])) {
-                        if(quiet)
-                            printf("%s\n", word);
-                        else
-                            printf("%d:%d:%s\n", line, pos, word);
-                        break;
-                    }
-                }
-                pos += string_length(word);
-                break;
-            case status_linebreak:
-                fgets(text, text_buffer_size, stdin);
-            /*
-             * If the current text is the same
-             * as the old one, it means that
-             * there is nothing more to read
-             */ 
-                if(string_compare(text, text_cmp)) {
-                    res = status_stop;
+    for(;;) { /* todo make bools */
+        res = catch(word, &line, &pos);
+        if(res > 0) {
+            for(i = 0; i < pat_count; i++) {
+                if(match(word, pat[i])) {
+                    if(quiet)
+                        printf("%s\n", word);
+                    else
+                        printf("%d:%d:%s\n", line, pos, word);
                     break;
                 }
-                string_copy(text, text_cmp);
-                text_pos = 0;
-                pos = 1;
-                break;
+            }
+            pos += string_length(word) + 1; /* + 1 add space pos */
         }
-        if(res == status_stop)
+        if(res == status_readln || res == status_ln) {
+            line++;
+            pos = 1;
+        }
+        if(res == status_readEOF || res == EOF)
             break;
     }
     for(i = 0; i < patterns_buffer_size; i++)
         free(pat[i]);
     free(pat);
     free(word);
-    free(text);
-    free(text_cmp);
     return 0;
 }
