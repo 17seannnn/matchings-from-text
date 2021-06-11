@@ -1,34 +1,36 @@
-# **MFT** - *matches from text* v1.10
+
+# **MFT** - *matches from text* v1.12
 
 ## How to use it?
 
 ```bash
-./mft "-param" "[Pattern1]" "[Pattern2]"...
+./mft -[PARAM] '[Pattern1]' '[Pattern2]'...
 ```
 Then you can enter the string
 or do something like this:
 ```bash
-cat ../test/text.txt | ./mft "lorem" "\?" "u*a"
+cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
+cat ../test/linepos.txt | ./mft '?orem' '\'
 ```
 
 ### Patterns
 Special characters for patterns:
 
-'\*' = any characters of any length
+'**\***' = any characters of any length
 
-'?' = any character, but can not be empty
+'**?**' = any character, but can not be empty
 
-'\\' = place it before \*, ? and \ for finding star, question mark and backslash
+'**\\**' = place it before \* and ? for finding star and question mark
 
 Examples:
 ``` bash
-"?orem" "b*ye" "questions\?" "\*stars\*" "\\"
+'?orem' 'b*ye' 'questions\?' '\*stars\*' '\'
 ```
 
 ### Params
--q || --quiet = show matches without line and position
+-q, --quiet = show matches without line and position
 
---help = show help
+--help      = show help
 
 ## Install
 
