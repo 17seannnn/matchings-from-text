@@ -32,6 +32,8 @@ int match(const char *str, const char *pat)
 {
     for(;; str++, pat++) {
         switch(*pat) {
+            case 0:
+                return 1;
             case '*':
                 for(;; str++) {
                     if(match(str, pat+1))
@@ -209,22 +211,18 @@ int main(int argc, char **argv)
         for(i = 1; argv[i] && isparam(argv[i]); i++)
             {}
     }
-    pattern = 0; /* start counting */
-    /*TODO пока argv[i] -> делаем всю тему и k++ */
-    pattern = k;
+/* Copy, preprocess and count patterns from argv */
+    for(k = 0; argv[i] && !isparam(argv[i]) &&
+                                        k < patterns_buffer_size; i++, k++) {
+        str_cpy(argv[i], pat[k]);
+        preprocess(pat[k]);
+    }
+    pattern = k;    /* k is number of patterns */
     if(!pattern) {
         fprintf(stderr, "Error: no patterns given\n");
         freemem(pat, word);
         return 3;
     }
-/* Copy, preprocess and count patterns from argv */
-/*
-    for(k = 0; argv[i] && k < patterns_buffer_size; i++) {
-        str_cpy(argv[i+k], pat[i]);
-        preprocess(pat[i]);
-    }
-    patterns = i;
-*/
     line = pos = 1;
     is_ln = is_eof = 0;
     f = stdin; /* TODO temp */
