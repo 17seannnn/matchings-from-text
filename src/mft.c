@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { patterns_buffer_size = 32, word_buffer_size = 256,
-       star_replace = 1, question_replace = 2, empty_replace = 3 };
+enum { files_buffer_size = 32,
+       patterns_buffer_size = 32,
+       word_buffer_size = 256,
+       star_replace = 1,
+       question_replace = 2,
+       empty_replace = 3 };
 
 int str_len(const char *str)
 {
@@ -126,13 +130,12 @@ Params: -q, --quiet = show matches without line and position\n\
         --help      = show help\n\n\
 Special characters for patterns:\n\
         '*' = any characters of any length\n\
-        '?' = any character, but can not be empty\n\
+        '?' = any character, but cannot be empty\n\
         '\\' = place it before * and ? for finding star and question mark\n\
 Examples:\n\
 '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
 If you find bugs - hoggarthlife@gmail.com\n\
-Author: https://github.com/17sean\n");
-    exit(0);
+Author:            https://github.com/17sean\n");
 }
 
 int isparam(const char *str)
@@ -145,24 +148,33 @@ int isparam(const char *str)
         return 0;
 }
 
-void freemem(char **pat, char *word)
+void freemem(FILE **f, char **pat, char *word)
 {
+    free(f);
     for(int i = 0; i < patterns_buffer_size; i++)
         free(pat[i]);
     free(pat); 
     free(word);
 }
 
+void fclose_all(FILE **f, int size)
+{
+    for(int i = 0; i < size; i++) {
+        if(fclose(f[i]))
+            perror("close file");
+    }
+}
+
 int main(int argc, char **argv)
 {
     if(argc < 2) {
-        fprintf(stderr, "Error: wrong count of parameters\n");
+        fprintf(stderr, "Error: Wrong count of parameters\n");
         return 1;
     }
-    FILE *f;
     int i, k, res, is_ln, is_eof, line, pos;
     int quiet, file, pattern; /* Params */
 /* Allocate mem */
+    FILE **f = malloc(sizeof(FILE*)*files_buffer_size);
     char **pat = malloc(sizeof(char*)*patterns_buffer_size);
     for(i = 0; i < patterns_buffer_size; i++)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
@@ -172,8 +184,11 @@ int main(int argc, char **argv)
     file = 0;
     pattern = 0;
     for(i = 0; argv[i]; i++) {
-        if(str_cmp(argv[i], "--help"))
+        if(str_cmp(argv[i], "--help")) {
             help();
+            freemem(f, pat, word);
+            return 0;
+        }
         else if(str_cmp(argv[i], "-q") || str_cmp(argv[i], "--quiet"))
             quiet = 1;
         else if(str_cmp(argv[i], "-f") || str_cmp(argv[i], "--file"))
@@ -183,20 +198,39 @@ int main(int argc, char **argv)
     }
     /*
      * If we have -f param but dont have -p
-     * then mft can not understand where
+     * then mft cannot understand where
      * exactly the patterns are.
      */
     if(file && !pattern) {
-        fprintf(stderr, "Error: add -p param before patterns\n");
-        freemem(pat, word);
+        fprintf(stderr, "Error: Add -p param before patterns\n");
+        freemem(f, pat, word);
         return 2;
     }
-    /* TODO check for files
-     * if(files) then we are looking
-     *     for them from -f param
-     * else
-     *     f = stdin;
-     */ 
+    /*
+     * If we have "-f" param
+     * then we are looking for it
+     * and open streams.
+     * Else f[0] is stdin
+     */
+    if(file) {
+        for(i = 0; !str_cmp(argv[i], "-f") && !str_cmp(argv[i], "--file"); i++)
+            {}
+        i++;
+        for(k = 0; argv[i] && !isparam(argv[i]) &&
+                                            k < files_buffer_size; i++, k++) {
+            f[k] = fopen(argv[i], "r");
+            if(!f[k]) {
+                perror(argv[i]);
+                fclose_all(f, k);
+                freemem(f, pat, word);
+                return 3;
+            }
+        }
+        file = k;    /* k is number of files */
+    } else {
+        f[0] = stdin;
+        file = 1;
+    }
     /*
      * If we have "-p" param
      * then we are looking for it.
@@ -219,37 +253,40 @@ int main(int argc, char **argv)
     }
     pattern = k;    /* k is number of patterns */
     if(!pattern) {
-        fprintf(stderr, "Error: no patterns given\n");
-        freemem(pat, word);
-        return 3;
+        fprintf(stderr, "Error: No patterns given\n");
+        fclose_all(f, file);
+        freemem(f, pat, word);
+        return 4;
     }
-    line = pos = 1;
-    is_ln = is_eof = 0;
-    f = stdin; /* TODO temp */
-    while(!is_eof) {
-        res = catch(word, &is_ln, &is_eof, &line, &pos, f);
-        /*
-         * If res == 1 then we
-         * can compare a word
-         */
-        if(res) {
-            for(i = 0; i < pattern; i++) {
-                if(match(word, pat[i])) {
-                    if(quiet)
-                        printf("%s\n", word);
-                    else
-                        printf("%d:%d:%s\n", line, pos, word);
-                    break;
+    for(i = 0; i < file; i++) {
+        line = pos = 1;
+        is_ln = is_eof = 0;
+        while(!is_eof) {
+            res = catch(word, &is_ln, &is_eof, &line, &pos, f[i]);
+            /*
+             * If res == 1 then we
+             * can compare a word
+             */
+            if(res) {
+                for(k = 0; k < pattern; k++) {
+                    if(match(word, pat[k])) {
+                        if(quiet)
+                            printf("%s\n", word);
+                        else
+                            printf("%d:%d:%s\n", line, pos, word);
+                        break;
+                    }
                 }
+                pos += str_len(word) + 1; /* + 1 for space and tab */
             }
-            pos += str_len(word) + 1; /* + 1 for space and tab */
-        }
-        if(is_ln) {
-            line++;
-            pos = 1;
-            is_ln = 0;
+            if(is_ln) {
+                line++;
+                pos = 1;
+                is_ln = 0;
+            }
         }
     }
-    freemem(pat, word);
+    fclose_all(f, file);
+    freemem(f, pat, word);
     return 0;
 }

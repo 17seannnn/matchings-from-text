@@ -18,7 +18,7 @@ Special characters for patterns:
 
 '**\***' = any characters of any length
 
-'**?**' = any character, but can not be empty
+'**?**' = any character, but cannot be empty
 
 '**\\**' = place it before \* and ? for finding star and question mark
 
