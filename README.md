@@ -37,7 +37,7 @@ Examples:
 ```bash
 git clone https://github.com/17sean/mft.git
 cd mft/src
-gcc mft.c -o mft
+gcc main.c -o mft
 ```
 
 ## Updates

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # compile
-gcc -Wall -g ../src/mft.c -o ../src/mft
+gcc -Wall -g ../src/main.c -o ../src/mft
 echo ""
 
 # With -q
