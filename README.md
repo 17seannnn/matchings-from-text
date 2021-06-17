@@ -40,16 +40,5 @@ cd mft/src
 gcc mft.c -o mft
 ```
 
-## Tasks
+## Updates
 
-- [x] Add comments in the code
-- [x] Update README: add block about patterns
-- [x] Add --help param
-- [x] Find matches with any number of patterns
-- [x] Add -q param to show words without line and pos
-- [x] Show line number and position
-- [x] Add \ for finding '?', '\*' and '\\'
-- [x] If the pattern isn't present at the beginning of the word, it can't be recognized
-- [x] The pattern can be smaller than the string it is compared to
-- [x] More memory for text
-- [x] Use compile-time constants for number of memory
