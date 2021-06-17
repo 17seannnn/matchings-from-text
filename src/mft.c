@@ -8,6 +8,39 @@ enum { files_buffer_size = 32,
        question_replace = 2,
        empty_replace = 3 };
 
+void help()
+{
+    printf("\
+Usage: mft -[PARAM] '[Pattern1]' '[Pattern2]'...\n\n\
+Params: -q, --quiet = show matches without line and position\n\
+        --help      = show help\n\n\
+Special characters for patterns:\n\
+        '*' = any characters of any length\n\
+        '?' = any character, but cannot be empty\n\
+        '\\' = place it before * and ? for finding star and question mark\n\
+Examples:\n\
+'?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
+If you find bugs - hoggarthlife@gmail.com\n\
+Author:            https://github.com/17sean\n");
+}
+
+void fclose_all(FILE **f, int size)
+{
+    for(int i = 0; i < size; i++) {
+        if(fclose(f[i]))
+            perror("close stream");
+    }
+}
+
+void freemem(FILE **f, char **pat, char *word)
+{
+    free(f);
+    for(int i = 0; i < patterns_buffer_size; i++)
+        free(pat[i]);
+    free(pat); 
+    free(word);
+}
+
 int str_len(const char *str)
 {
     const char *tmp;
@@ -32,37 +65,36 @@ int str_cmp(const char *cmp1, const char *cmp2)
     return 1;
 }
 
-int match(const char *str, const char *pat)
+int isparam(const char *str)
 {
-    for(;; str++, pat++) {
-        switch(*pat) {
-            case 0:
-                return 1;
-            case '*':
-                for(;; str++) {
-                    if(match(str, pat+1))
-                        return 1;
-                    else if(!*str)
-                        return 0;
-                }
-            case '?':
-                if(!*str)
-                    return 0;
-                break;
-            case star_replace:
-                if(*str != '*')
-                    return 0;
-                break;
-            case question_replace:
-                if(*str != '?')
-                    return 0;
-                break;
-            case empty_replace:
-                str--;
-                break;
-            default:
-                if(*str != *pat)
-                    return 0;
+    if(str_cmp(str, "-q") || str_cmp(str, "--quiet") ||
+       str_cmp(str, "-f") || str_cmp(str, "--file") ||
+       str_cmp(str, "-p") || str_cmp(str, "--pattern"))
+        return 1;
+    else
+        return 0;
+}
+
+void preprocess(char *pat)
+{
+/* Add '*' to the beginning for better search */
+    int len = str_len(pat);
+    pat[len+1] = 0;
+    for(; len > 0; len--)
+        pat[len] = pat[len-1];
+    pat[0] = '*';
+/* Change to special characters to match */
+    for(; *pat; pat++) {
+        if((*pat == '*' || *pat == '?') && *(pat-1) == '\\') {
+            switch(*pat) {
+                case '*':
+                    *pat = star_replace;
+                    break;
+                case '?':
+                    *pat = question_replace;
+                    break;
+            }
+            *(pat-1) = empty_replace;
         }
     }
 }
@@ -98,70 +130,38 @@ int catch(char *word, int *is_ln, int *is_eof, int *line, int *pos, FILE *f)
     return 1;
 }
 
-void preprocess(char *pat)
+int match(const char *str, const char *pat)
 {
-/* Add '*' to the beginning for better search */
-    int len = str_len(pat);
-    pat[len+1] = 0;
-    for(; len > 0; len--)
-        pat[len] = pat[len-1];
-    pat[0] = '*';
-/* Change to special characters to match */
-    for(; *pat; pat++) {
-        if((*pat == '*' || *pat == '?') && *(pat-1) == '\\') {
-            switch(*pat) {
-                case '*':
-                    *pat = star_replace;
-                    break;
-                case '?':
-                    *pat = question_replace;
-                    break;
-            }
-            *(pat-1) = empty_replace;
+    for(;; str++, pat++) {
+        switch(*pat) {
+            case 0:
+                return 1;
+            case '*':
+                for(;; str++) {
+                    if(match(str, pat+1))
+                        return 1;
+                    else if(!*str)
+                        return 0;
+                }
+            case '?':
+                if(!*str)
+                    return 0;
+                break;
+            case star_replace:
+                if(*str != '*')
+                    return 0;
+                break;
+            case question_replace:
+                if(*str != '?')
+                    return 0;
+                break;
+            case empty_replace:
+                str--;
+                break;
+            default:
+                if(*str != *pat)
+                    return 0;
         }
-    }
-}
-
-void help()
-{
-    printf("\
-Usage: mft -[PARAM] '[Pattern1]' '[Pattern2]'...\n\n\
-Params: -q, --quiet = show matches without line and position\n\
-        --help      = show help\n\n\
-Special characters for patterns:\n\
-        '*' = any characters of any length\n\
-        '?' = any character, but cannot be empty\n\
-        '\\' = place it before * and ? for finding star and question mark\n\
-Examples:\n\
-'?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
-If you find bugs - hoggarthlife@gmail.com\n\
-Author:            https://github.com/17sean\n");
-}
-
-int isparam(const char *str)
-{
-    if(str_cmp(str, "-q") || str_cmp(str, "--quiet") ||
-       str_cmp(str, "-f") || str_cmp(str, "--file") ||
-       str_cmp(str, "-p") || str_cmp(str, "--pattern"))
-        return 1;
-    else
-        return 0;
-}
-
-void freemem(FILE **f, char **pat, char *word)
-{
-    free(f);
-    for(int i = 0; i < patterns_buffer_size; i++)
-        free(pat[i]);
-    free(pat); 
-    free(word);
-}
-
-void fclose_all(FILE **f, int size)
-{
-    for(int i = 0; i < size; i++) {
-        if(fclose(f[i]))
-            perror("close stream");
     }
 }
 
