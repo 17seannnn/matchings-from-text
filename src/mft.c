@@ -171,7 +171,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: Wrong count of parameters\n");
         return 1;
     }
-    int i, k, res, is_ln, is_eof, line, pos;
+    int i, k; /* For loops */
+    int res, is_ln, is_eof, line, pos; /* Main vars */
     int quiet, file, pattern; /* Params */
 /* Allocate mem */
     FILE **f = malloc(sizeof(FILE*)*files_buffer_size);
