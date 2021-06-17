@@ -3,7 +3,7 @@
 
 enum { files_buffer_size = 32,
        patterns_buffer_size = 32,
-       word_buffer_size = 256,
+       word_buffer_size = 1024,
        star_replace = 1,
        question_replace = 2,
        empty_replace = 3 };
@@ -161,7 +161,7 @@ void fclose_all(FILE **f, int size)
 {
     for(int i = 0; i < size; i++) {
         if(fclose(f[i]))
-            perror("close file");
+            perror("close stream");
     }
 }
 
@@ -227,6 +227,11 @@ int main(int argc, char **argv)
             }
         }
         file = k;    /* k is number of files */
+        if(!file) {
+            fprintf(stderr, "Error: No files given\n");
+            freemem(f, pat, word);
+            return 4;
+        }
     } else {
         f[0] = stdin;
         file = 1;
@@ -245,7 +250,6 @@ int main(int argc, char **argv)
         for(i = 1; argv[i] && isparam(argv[i]); i++)
             {}
     }
-/* Copy, preprocess and count patterns from argv */
     for(k = 0; argv[i] && !isparam(argv[i]) &&
                                         k < patterns_buffer_size; i++, k++) {
         str_cpy(argv[i], pat[k]);
@@ -256,11 +260,14 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: No patterns given\n");
         fclose_all(f, file);
         freemem(f, pat, word);
-        return 4;
+        return 5;
     }
+/* Main loop */
     for(i = 0; i < file; i++) {
-        line = pos = 1;
-        is_ln = is_eof = 0;
+        line = 1;
+        pos = 1;
+        is_ln = 0;
+        is_eof = 0;
         while(!is_eof) {
             res = catch(word, &is_ln, &is_eof, &line, &pos, f[i]);
             /*
