@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { files_buffer_size    = 32,
-       patterns_buffer_size = 32,
+enum { files_buffer_size    = 64,
+       patterns_buffer_size = 64,
        word_buffer_size     = 1024,
        star_replace         = 1,
        question_replace     = 2,
@@ -49,11 +49,12 @@ int str_len(const char *str)
     return tmp - str;
 }
 
-void str_cpy(const char *src, char *dst)
+void str_cpy(const char *src, char *dst, int size)
 {
-    for(; *src; src++, dst++)
-        *dst = *src;
-    *dst = 0;
+    char *tmp = dst;
+    for(; *src && (tmp - dst < size - 1); src++, tmp++)
+        *tmp = *src;
+    *tmp = 0;
 }
 
 int str_cmp(const char *cmp1, const char *cmp2)
@@ -270,7 +271,7 @@ int main(int argc, char **argv)
     }
     for(k = 0; argv[i] && !isparam(argv[i]) &&
                                         k < patterns_buffer_size; i++, k++) {
-        str_cpy(argv[i], pat[k]);
+        str_cpy(argv[i], pat[k], word_buffer_size);
         preprocess(pat[k]);
     }
     pattern = k;    /* k is number of patterns */
