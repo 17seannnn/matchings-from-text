@@ -71,10 +71,11 @@ int str_cmp(const char *cmp1, const char *cmp2)
 
 int isparam(const char *str)
 {
-    if(str_cmp(str, "-q") || str_cmp(str, "--quiet")     ||
-       str_cmp(str, "-c") || str_cmp(str, "--any-cases") ||
-       str_cmp(str, "-f") || str_cmp(str, "--file")      ||
-       str_cmp(str, "-p") || str_cmp(str, "--pattern"))
+    if(str_cmp(str, "-qc") || str_cmp(str, "-cq")         ||
+       str_cmp(str, "-c")  || str_cmp(str, "--any-cases") ||
+       str_cmp(str, "-q")  || str_cmp(str, "--quiet")     ||
+       str_cmp(str, "-f")  || str_cmp(str, "--file")      ||
+       str_cmp(str, "-p")  || str_cmp(str, "--pattern"))
         return 1;
     else
         return 0;
@@ -216,6 +217,10 @@ int main(int argc, char **argv)
             help();
             freemem(f, fname, pat, word);
             return 0;
+        }
+        else if(str_cmp(argv[i], "-qc") || str_cmp(argv[i], "-cq")) {
+            quiet = 1;
+            any_cases = 1;
         }
         else if(str_cmp(argv[i], "-q") || str_cmp(argv[i], "--quiet"))
             quiet = 1;
