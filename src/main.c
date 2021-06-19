@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { files_buffer_size = 32,
+enum { files_buffer_size    = 32,
        patterns_buffer_size = 32,
-       word_buffer_size = 1024,
-       star_replace = 1,
-       question_replace = 2,
-       empty_replace = 3 };
+       word_buffer_size     = 1024,
+       star_replace         = 1,
+       question_replace     = 2,
+       empty_replace        = 3 };
 
 void help()
 {
@@ -67,9 +67,18 @@ int str_cmp(const char *cmp1, const char *cmp2)
 
 int isparam(const char *str)
 {
-    if(str_cmp(str, "-q") || str_cmp(str, "--quiet") ||
-       str_cmp(str, "-f") || str_cmp(str, "--file") ||
+    if(str_cmp(str, "-q") || str_cmp(str, "--quiet")     ||
+       str_cmp(str, "-c") || str_cmp(str, "--any-cases") ||
+       str_cmp(str, "-f") || str_cmp(str, "--file")      ||
        str_cmp(str, "-p") || str_cmp(str, "--pattern"))
+        return 1;
+    else
+        return 0;
+}
+
+int isletter(char c)
+{
+    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
         return 1;
     else
         return 0;
@@ -130,7 +139,7 @@ int catch(char *word, int *is_ln, int *is_eof, int *line, int *pos, FILE *f)
     return 1;
 }
 
-int match(const char *str, const char *pat)
+int match(const char *str, const char *pat, int any_cases)
 {
     for(;; str++, pat++) {
         switch(*pat) {
@@ -138,7 +147,7 @@ int match(const char *str, const char *pat)
                 return 1;
             case '*':
                 for(;; str++) {
-                    if(match(str, pat+1))
+                    if(match(str, pat+1, any_cases))
                         return 1;
                     else if(!*str)
                         return 0;
@@ -159,8 +168,13 @@ int match(const char *str, const char *pat)
                 str--;
                 break;
             default:
-                if(*str != *pat)
-                    return 0;
+                if(*str != *pat) {
+                    if(any_cases && isletter(*str) && isletter(*pat)) {
+                        if(*str != *pat - 32 && *str != *pat + 32)
+                            return 0;
+                    } else
+                        return 0;
+                }
         }
     }
 }
@@ -173,7 +187,7 @@ int main(int argc, char **argv)
     }
     int i, k; /* For loops */
     int res, is_ln, is_eof, line, pos; /* Main vars */
-    int quiet, file, pattern; /* Params */
+    int quiet, any_cases, file, pattern; /* Params */
 /* Allocate mem */
     FILE **f = malloc(sizeof(FILE*)*files_buffer_size);
     char **pat = malloc(sizeof(char*)*patterns_buffer_size);
@@ -181,9 +195,10 @@ int main(int argc, char **argv)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
 /* Check params */
-    quiet = 0;
-    file = 0;
-    pattern = 0;
+    quiet     = 0;
+    any_cases = 0;
+    file      = 0;
+    pattern   = 0;
     for(i = 0; argv[i]; i++) {
         if(str_cmp(argv[i], "--help")) {
             help();
@@ -192,6 +207,8 @@ int main(int argc, char **argv)
         }
         else if(str_cmp(argv[i], "-q") || str_cmp(argv[i], "--quiet"))
             quiet = 1;
+        else if(str_cmp(argv[i], "-c") || str_cmp(argv[i], "--any-cases"))
+            any_cases = 1;
         else if(str_cmp(argv[i], "-f") || str_cmp(argv[i], "--file"))
             file = 1;
         else if(str_cmp(argv[i], "-p") || str_cmp(argv[i], "--pattern"))
@@ -277,7 +294,7 @@ int main(int argc, char **argv)
              */
             if(res) {
                 for(k = 0; k < pattern; k++) {
-                    if(match(word, pat[k])) {
+                    if(match(word, pat[k], any_cases)) {
                         if(quiet)
                             printf("%s\n", word);
                         else
