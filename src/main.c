@@ -89,6 +89,11 @@ void preprocess(char *pat)
 {
 /* Add '*' to the beginning for better search */
     int i = str_len(pat) + 1;
+    if(i >= word_buffer_size) {
+        i = word_buffer_size - 1;
+        pat[i] = 0;
+        i--;
+    }
     for(; i > 0; i--)
         pat[i] = pat[i-1];
     pat[0] = '*';
