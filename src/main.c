@@ -88,10 +88,9 @@ int isletter(char c)
 void preprocess(char *pat)
 {
 /* Add '*' to the beginning for better search */
-    int len = str_len(pat);
-    pat[len+1] = 0;
-    for(; len > 0; len--)
-        pat[len] = pat[len-1];
+    int i = str_len(pat) + 1;
+    for(; i > 0; i--)
+        pat[i] = pat[i-1];
     pat[0] = '*';
 /* Change to special characters to match */
     for(; *pat; pat++) {
