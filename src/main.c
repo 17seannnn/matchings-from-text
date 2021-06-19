@@ -132,7 +132,8 @@ int catch(char *word, int *is_ln, int *is_eof, int *line, int *pos, FILE *f)
         }
     }
 /* Catch a word */
-    for(i = 0; c != ' ' && c != 9 && c != '\n' && c != EOF; i++) {
+    for(i = 0; i < word_buffer_size - 1 && c != ' ' && c != 9 &&
+                                                 c != '\n' && c != EOF; i++) {
         word[i] = c;
         c = fgetc(f);
     }
