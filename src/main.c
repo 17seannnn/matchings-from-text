@@ -32,9 +32,12 @@ void fclose_all(FILE **f, int size)
     }
 }
 
-void freemem(FILE **f, char **pat, char *word)
+void freemem(FILE **f, char **fname, char **pat, char *word)
 {
     free(f);
+    for(int i = 0; i < files_buffer_size; i++)
+        free(fname[i]);
+    free(fname); 
     for(int i = 0; i < patterns_buffer_size; i++)
         free(pat[i]);
     free(pat); 
@@ -196,6 +199,9 @@ int main(int argc, char **argv)
     int quiet, any_cases, file, pattern; /* Params */
 /* Allocate mem */
     FILE **f = malloc(sizeof(FILE*)*files_buffer_size);
+    char **fname = malloc(sizeof(char*)*files_buffer_size);
+    for(i = 0; i < files_buffer_size; i++)
+        fname[i] = malloc(sizeof(char)*word_buffer_size);
     char **pat = malloc(sizeof(char*)*patterns_buffer_size);
     for(i = 0; i < patterns_buffer_size; i++)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
@@ -208,7 +214,7 @@ int main(int argc, char **argv)
     for(i = 0; argv[i]; i++) {
         if(str_cmp(argv[i], "--help")) {
             help();
-            freemem(f, pat, word);
+            freemem(f, fname, pat, word);
             return 0;
         }
         else if(str_cmp(argv[i], "-q") || str_cmp(argv[i], "--quiet"))
@@ -227,7 +233,7 @@ int main(int argc, char **argv)
      */
     if(file && !pattern) {
         fprintf(stderr, "Error: Add -p param before patterns\n");
-        freemem(f, pat, word);
+        freemem(f, fname, pat, word);
         return 2;
     }
     /*
@@ -243,17 +249,18 @@ int main(int argc, char **argv)
         for(k = 0; argv[i] && !isparam(argv[i]) &&
                                             k < files_buffer_size; i++, k++) {
             f[k] = fopen(argv[i], "r");
+            str_cpy(argv[i], fname[k], word_buffer_size);
             if(!f[k]) {
                 perror(argv[i]);
                 fclose_all(f, k);
-                freemem(f, pat, word);
+                freemem(f, fname, pat, word);
                 return 3;
             }
         }
         file = k;    /* k is number of files */
         if(!file) {
             fprintf(stderr, "Error: No files given\n");
-            freemem(f, pat, word);
+            freemem(f, fname, pat, word);
             return 4;
         }
     } else {
@@ -283,7 +290,7 @@ int main(int argc, char **argv)
     if(!pattern) {
         fprintf(stderr, "Error: No patterns given\n");
         fclose_all(f, file);
-        freemem(f, pat, word);
+        freemem(f, fname, pat, word);
         return 5;
     }
 /* Main loop */
@@ -292,6 +299,8 @@ int main(int argc, char **argv)
         pos = 1;
         is_ln = 0;
         is_eof = 0;
+        if(!quiet && f[i] != stdin)
+            printf("/* %s */\n", fname[i]);
         while(!is_eof) {
             res = catch(word, &is_ln, &is_eof, &line, &pos, f[i]);
             /*
@@ -318,6 +327,6 @@ int main(int argc, char **argv)
         }
     }
     fclose_all(f, file);
-    freemem(f, pat, word);
+    freemem(f, fname, pat, word);
     return 0;
 }
