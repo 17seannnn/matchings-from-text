@@ -4,6 +4,14 @@
 enum { files_buffer_size    = 64,
        patterns_buffer_size = 64,
        word_buffer_size     = 1024,
+
+       help_param           = 1,
+       qnc_param            = 2,
+       quiet_param          = 3,
+       any_cases_param      = 4,
+       file_param           = 5,
+       pattern_param        = 6,
+
        star_replace         = 1,
        question_replace     = 2,
        empty_replace        = 3 };
@@ -42,23 +50,38 @@ void str_cpy(const char *src, char *dst, int size)
 
 int str_cmp(const char *cmp1, const char *cmp2)
 {
-    for(; *cmp1; cmp1++, cmp2++) {
+    for(; *cmp1 || *cmp2; cmp1++, cmp2++) {
         if(*cmp1 != *cmp2)
             return 0;
     }
     return 1;
 }
 
-int isparam(const char *str)
+int whichparam(const char *str)
 {
-    if(str_cmp(str, "-qc") || str_cmp(str, "-cq")         ||
-       str_cmp(str, "-c")  || str_cmp(str, "--any-cases") ||
-       str_cmp(str, "-q")  || str_cmp(str, "--quiet")     ||
-       str_cmp(str, "-f")  || str_cmp(str, "--file")      ||
-       str_cmp(str, "-p")  || str_cmp(str, "--pattern"))
-        return 1;
+    if(str_cmp(str, "--help"))
+        return help_param;
+    else if(str_cmp(str, "-qc") || str_cmp(str, "-cq"))
+        return qnc_param;
+    else if(str_cmp(str, "-q")  || str_cmp(str, "--quiet"))
+        return quiet_param;
+    else if(str_cmp(str, "-c")  || str_cmp(str, "--any-cases"))
+        return any_cases_param;
+    else if(str_cmp(str, "-f")  || str_cmp(str, "--file"))
+        return file_param;
+    else if(str_cmp(str, "-p")  || str_cmp(str, "--pattern"))
+        return pattern_param;
     else
         return 0;
+}
+
+int isparam(const char *str)
+{
+    /*
+     * If whichparam() return
+     * value > 0 then it is param
+     */
+    return whichparam(str);
 }
 
 int isletter(char c)
@@ -189,24 +212,21 @@ int main(int argc, char **argv)
     any_cases = 0;
     file      = 0;
     pattern   = 0;
-    for(i = 0; argv[i]; i++) {
-        if(str_cmp(argv[i], "--help")) {
-            help();
-            file = 0;
-            goto quit;
+    for(i = 1; argv[i]; i++) {
+        switch(whichparam(argv[i])) {
+            case help_param:
+                help();
+                file = 0;
+                goto quit;
+            case qnc_param:
+                quiet = 1;
+                any_cases = 1;
+                break;
+            case quiet_param:     quiet = 1;     break;
+            case any_cases_param: any_cases = 1; break;
+            case file_param:      file = 1;      break;
+            case pattern_param:   pattern = 1;   break;
         }
-        else if(str_cmp(argv[i], "-qc") || str_cmp(argv[i], "-cq")) {
-            quiet = 1;
-            any_cases = 1;
-        }
-        else if(str_cmp(argv[i], "-q") || str_cmp(argv[i], "--quiet"))
-            quiet = 1;
-        else if(str_cmp(argv[i], "-c") || str_cmp(argv[i], "--any-cases"))
-            any_cases = 1;
-        else if(str_cmp(argv[i], "-f") || str_cmp(argv[i], "--file"))
-            file = 1;
-        else if(str_cmp(argv[i], "-p") || str_cmp(argv[i], "--pattern"))
-            pattern = 1;
     }
     /*
      * If we have -f param but dont have -p
@@ -223,7 +243,6 @@ int main(int argc, char **argv)
      * If we have "-f" param
      * then we are looking for it
      * and open streams.
-     * Else f[0] is stdin
      */
     if(file) {
         for(i = 0; !str_cmp(argv[i], "-f") && !str_cmp(argv[i], "--file"); i++)
