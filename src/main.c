@@ -195,6 +195,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: Wrong count of parameters\n");
         return 1;
     }
+    int exit_status = 0;
     int i, k; /* For loops */
     int res, is_ln, is_eof, line, pos; /* Main vars */
     int quiet, any_cases, file, pattern; /* Params */
@@ -215,8 +216,8 @@ int main(int argc, char **argv)
     for(i = 0; argv[i]; i++) {
         if(str_cmp(argv[i], "--help")) {
             help();
-            freemem(f, fname, pat, word);
-            return 0;
+            file = 0;
+            goto quit;
         }
         else if(str_cmp(argv[i], "-qc") || str_cmp(argv[i], "-cq")) {
             quiet = 1;
@@ -238,8 +239,9 @@ int main(int argc, char **argv)
      */
     if(file && !pattern) {
         fprintf(stderr, "Error: Add -p param before patterns\n");
-        freemem(f, fname, pat, word);
-        return 2;
+        file = 0;
+        exit_status = 2;
+        goto quit;
     }
     /*
      * If we have "-f" param
@@ -254,19 +256,19 @@ int main(int argc, char **argv)
         for(k = 0; argv[i] && !isparam(argv[i]) &&
                                             k < files_buffer_size; i++, k++) {
             f[k] = fopen(argv[i], "r");
-            str_cpy(argv[i], fname[k], word_buffer_size);
             if(!f[k]) {
                 perror(argv[i]);
-                fclose_all(f, k);
-                freemem(f, fname, pat, word);
-                return 3;
+                file = k;
+                exit_status = 3;
+                goto quit;
             }
+            str_cpy(argv[i], fname[k], word_buffer_size);
         }
         file = k;    /* k is number of files */
         if(!file) {
             fprintf(stderr, "Error: No files given\n");
-            freemem(f, fname, pat, word);
-            return 4;
+            exit_status = 4;
+            goto quit;
         }
     } else {
         f[0] = stdin;
@@ -294,9 +296,8 @@ int main(int argc, char **argv)
     pattern = k;    /* k is number of patterns */
     if(!pattern) {
         fprintf(stderr, "Error: No patterns given\n");
-        fclose_all(f, file);
-        freemem(f, fname, pat, word);
-        return 5;
+        exit_status = 5;
+        goto quit;
     }
 /* Main loop */
     for(i = 0; i < file; i++) {
@@ -331,7 +332,8 @@ int main(int argc, char **argv)
             }
         }
     }
+quit:
     fclose_all(f, file);
     freemem(f, fname, pat, word);
-    return 0;
+    return exit_status;
 }
