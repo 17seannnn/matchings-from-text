@@ -245,7 +245,7 @@ int main(int argc, char **argv)
      * and open streams.
      */
     if(file) {
-        for(i = 0; !str_cmp(argv[i], "-f") && !str_cmp(argv[i], "--file"); i++)
+        for(i = 0; whichparam(argv[i]) != file_param; i++)
             {}
         i++;
         for(k = 0; argv[i] && !isparam(argv[i]) &&
@@ -275,8 +275,7 @@ int main(int argc, char **argv)
      * Else skip all params
      */
     if(pattern) {
-        for(i = 1; !str_cmp(argv[i], "-p") &&
-                   !str_cmp(argv[i], "--pattern"); i++)
+        for(i = 1; whichparam(argv[i]) != pattern_param; i++)
             {}
         i++;
     } else {
