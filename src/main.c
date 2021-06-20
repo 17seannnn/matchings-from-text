@@ -171,10 +171,6 @@ int match(const char *str, const char *pat, int any_cases)
 
 int main(int argc, char **argv)
 {
-    if(argc < 2) {
-        fprintf(stderr, "Error: Wrong count of parameters\n");
-        return 1;
-    }
     int exit_status = 0;
     int i, k; /* For loops */
     int res, is_ln, is_eof, line, pos; /* Main vars */
@@ -220,7 +216,7 @@ int main(int argc, char **argv)
     if(file && !pattern) {
         fprintf(stderr, "Error: Add -p param before patterns\n");
         file = 0;
-        exit_status = 2;
+        exit_status = 1;
         goto quit;
     }
     /*
@@ -239,7 +235,7 @@ int main(int argc, char **argv)
             if(!f[k]) {
                 perror(argv[i]);
                 file = k;
-                exit_status = 3;
+                exit_status = 2;
                 goto quit;
             }
             str_cpy(argv[i], fname[k], word_buffer_size);
@@ -247,7 +243,7 @@ int main(int argc, char **argv)
         file = k;    /* k is number of files */
         if(!file) {
             fprintf(stderr, "Error: No files given\n");
-            exit_status = 4;
+            exit_status = 3;
             goto quit;
         }
     } else {
@@ -276,7 +272,7 @@ int main(int argc, char **argv)
     pattern = k;    /* k is number of patterns */
     if(!pattern) {
         fprintf(stderr, "Error: No patterns given\n");
-        exit_status = 5;
+        exit_status = 4;
         goto quit;
     }
 /* Main loop */
