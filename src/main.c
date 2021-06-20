@@ -24,26 +24,6 @@ If you find bugs - hoggarthlife@gmail.com\n\
 Author:            https://github.com/17sean\n");
 }
 
-void fclose_all(FILE **f, int size)
-{
-    for(int i = 0; i < size; i++) {
-        if(fclose(f[i]))
-            perror("close stream");
-    }
-}
-
-void freemem(FILE **f, char **fname, char **pat, char *word)
-{
-    free(f);
-    for(int i = 0; i < files_buffer_size; i++)
-        free(fname[i]);
-    free(fname); 
-    for(int i = 0; i < patterns_buffer_size; i++)
-        free(pat[i]);
-    free(pat); 
-    free(word);
-}
-
 int str_len(const char *str)
 {
     const char *tmp;
@@ -333,7 +313,19 @@ int main(int argc, char **argv)
         }
     }
 quit:
-    fclose_all(f, file);
-    freemem(f, fname, pat, word);
+/* Close all streams */
+    for(i = 0; i < file; i++) {
+        if(fclose(f[i]))
+            perror("close stream");
+    }
+/* Free memory */
+    free(f);
+    for(i = 0; i < files_buffer_size; i++)
+        free(fname[i]);
+    free(fname); 
+    for(i = 0; i < patterns_buffer_size; i++)
+        free(pat[i]);
+    free(pat); 
+    free(word);
     return exit_status;
 }
