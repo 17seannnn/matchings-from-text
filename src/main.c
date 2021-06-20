@@ -75,15 +75,6 @@ int whichparam(const char *str)
         return 0;
 }
 
-int isparam(const char *str)
-{
-    /*
-     * If whichparam() return
-     * value > 0 then it is param
-     */
-    return whichparam(str);
-}
-
 int isletter(char c)
 {
     if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
@@ -248,7 +239,7 @@ int main(int argc, char **argv)
         for(i = 0; whichparam(argv[i]) != file_param; i++)
             {}
         i++;
-        for(k = 0; argv[i] && !isparam(argv[i]) &&
+        for(k = 0; argv[i] && !whichparam(argv[i]) &&
                                             k < files_buffer_size; i++, k++) {
             f[k] = fopen(argv[i], "r");
             if(!f[k]) {
@@ -279,10 +270,10 @@ int main(int argc, char **argv)
             {}
         i++;
     } else {
-        for(i = 1; argv[i] && isparam(argv[i]); i++)
+        for(i = 1; argv[i] && whichparam(argv[i]); i++)
             {}
     }
-    for(k = 0; argv[i] && !isparam(argv[i]) &&
+    for(k = 0; argv[i] && !whichparam(argv[i]) &&
                                         k < patterns_buffer_size; i++, k++) {
         str_cpy(argv[i], pat[k], word_buffer_size);
         preprocess(pat[k]);
