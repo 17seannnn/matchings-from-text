@@ -75,6 +75,55 @@ int whichparam(const char *str)
         return 0;
 }
 
+int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
+{
+    *quiet     = 0;
+    *any_cases = 0;
+    *file      = 0;
+    *pattern   = 0;
+    for(int i = 1; argv[i]; i++) {
+        switch(whichparam(argv[i])) {
+            case help_param:
+                help();
+                *file = 0;
+                /* 
+                * Mean func completed
+                * successfully, goto quit
+                */
+                return 111; 
+            case qnc_param:
+                *quiet = 1;
+                *any_cases = 1;
+                break;
+            case quiet_param:     *quiet = 1;     break;
+            case any_cases_param: *any_cases = 1; break;
+            case file_param:      *file = 1;      break;
+            case pattern_param:   *pattern = 1;   break;
+        }
+    }
+    /*
+     * If we have -f param but dont have -p
+     * then mft cannot understand where
+     * exactly the patterns are.
+     */
+    if(*file && !(*pattern)) {
+        fprintf(stderr, "Error: Add -p param before patterns\n");
+        *file = 0;
+        return 0;
+    }
+    return 1;
+}
+
+int init_file()
+{
+    return 1; 
+}
+
+int init_pattern()
+{
+    return 1;
+}
+
 int isletter(char c)
 {
     if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
@@ -198,35 +247,15 @@ int main(int argc, char **argv)
     for(i = 0; i < patterns_buffer_size; i++)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
-/* Check params */
-    quiet     = 0;
-    any_cases = 0;
-    file      = 0;
-    pattern   = 0;
-    for(i = 1; argv[i]; i++) {
-        switch(whichparam(argv[i])) {
-            case help_param:
-                help();
-                file = 0;
-                goto quit;
-            case qnc_param:
-                quiet = 1;
-                any_cases = 1;
-                break;
-            case quiet_param:     quiet = 1;     break;
-            case any_cases_param: any_cases = 1; break;
-            case file_param:      file = 1;      break;
-            case pattern_param:   pattern = 1;   break;
-        }
-    }
-    /*
-     * If we have -f param but dont have -p
-     * then mft cannot understand where
-     * exactly the patterns are.
+/* Init */
+    res = init_param(&quiet, &any_cases, &file, &pattern, argv); 
+    /* 
+     * func return 111 
+     * when find help param
      */
-    if(file && !pattern) {
-        fprintf(stderr, "Error: Add -p param before patterns\n");
-        file = 0;
+    if(res == 111) {
+        goto quit;
+    } else if(!res) {
         exit_status = 1;
         goto quit;
     }
