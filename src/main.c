@@ -85,13 +85,21 @@ int which_param(const char *str)
         return 0;
 }
 
+int is_letter(char c)
+{
+    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+        return 1;
+    else
+        return 0;
+}
+
 void preprocess(char *pat)
 {
 /* Add '*' to the beginning for better search */
-    int i = str_len(pat) + 1;
+    int i = str_len(pat) + 1;  /* + 1 to count '\0' */
     if(i >= word_buffer_size) {
         i = word_buffer_size - 1;
-        pat[i] = 0;
+        pat[i] = 0; 
         i--;
     }
     for(; i > 0; i--)
@@ -111,14 +119,6 @@ void preprocess(char *pat)
             *(pat-1) = empty_replace;
         }
     }
-}
-
-int is_letter(char c)
-{
-    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-        return 1;
-    else
-        return 0;
 }
 
 int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
@@ -189,7 +189,7 @@ int init_file(int *file, FILE **f, char **fname, char **argv)
         *file = k;    /* k is number of files */
     }
     /*
-     * If don`t have -f param or
+     * If do not have -f param or
      * nothing after param  
      */
     if(!(*file)) {
