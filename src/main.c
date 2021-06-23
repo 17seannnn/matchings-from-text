@@ -57,7 +57,7 @@ int str_cmp(const char *cmp1, const char *cmp2)
     return 1;
 }
 
-int whichparam(const char *str)
+int which_param(const char *str)
 {
     if(str_cmp(str, "--help"))
         return help_param;
@@ -103,7 +103,7 @@ void preprocess(char *pat)
     }
 }
 
-int isletter(char c)
+int is_letter(char c)
 {
     if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
         return 1;
@@ -118,7 +118,7 @@ int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
     *file      = 0;
     *pattern   = 0;
     for(int i = 1; argv[i]; i++) {
-        switch(whichparam(argv[i])) {
+        switch(which_param(argv[i])) {
             case help_param:
                 help();
                 *file = 0;
@@ -159,10 +159,10 @@ int init_file(int *file, FILE **f, char **fname, char **argv)
      */
     int i, k;
     if(*file) {
-        for(i = 0; whichparam(argv[i]) != file_param; i++)
+        for(i = 0; which_param(argv[i]) != file_param; i++)
             {}
         i++;
-        for(k = 0; argv[i] && !whichparam(argv[i]) &&
+        for(k = 0; argv[i] && !which_param(argv[i]) &&
                                             k < files_buffer_size; i++, k++) {
             f[k] = fopen(argv[i], "r");
             if(!f[k]) {
@@ -194,14 +194,14 @@ int init_pattern(int *pattern, char **pat, char **argv)
      */
     int i, k;
     if(*pattern) {
-        for(i = 1; whichparam(argv[i]) != pattern_param; i++)
+        for(i = 1; which_param(argv[i]) != pattern_param; i++)
             {}
         i++;
     } else {
-        for(i = 1; argv[i] && whichparam(argv[i]); i++)
+        for(i = 1; argv[i] && which_param(argv[i]); i++)
             {}
     }
-    for(k = 0; argv[i] && !whichparam(argv[i]) &&
+    for(k = 0; argv[i] && !which_param(argv[i]) &&
                                         k < patterns_buffer_size; i++, k++) {
         str_cpy(argv[i], pat[k], word_buffer_size);
         preprocess(pat[k]);
@@ -276,7 +276,7 @@ int match(const char *str, const char *pat, int any_cases)
                 break;
             default:
                 if(*str != *pat) {
-                    if(any_cases && isletter(*str) && isletter(*pat)) {
+                    if(any_cases && is_letter(*str) && is_letter(*pat)) {
                         if(*str != *pat - 32 && *str != *pat + 32)
                             return 0;
                     } else
