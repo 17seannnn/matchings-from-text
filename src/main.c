@@ -5,18 +5,19 @@ enum { files_buffer_size    = 64,
        patterns_buffer_size = 64,
        word_buffer_size     = 1024,
 
-       help_param           = 1,
-       qnc_param            = 2,
-       quiet_param          = 3,
-       any_cases_param      = 4,
-       file_param           = 5,
-       pattern_param        = 6,
+       help_full_param      = 1,
+       help_short_param     = 2,
+       qnc_param            = 3,
+       quiet_param          = 4,
+       any_cases_param      = 5,
+       file_param           = 6,
+       pattern_param        = 7,
 
        star_replace         = 1,
        question_replace     = 2,
        empty_replace        = 3 };
 
-void help()
+void help_full()
 {
     printf("\
 Usage: mft -[PARAM] '[Pattern1]' '[Pattern2]'...\n\n\
@@ -30,6 +31,13 @@ Examples:\n\
 '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
 If you find bugs - hoggarthlife@gmail.com\n\
 Author:            https://github.com/17sean\n");
+}
+
+void help_short()
+{
+    printf("\
+Usage: mft -[PARAM] '[Pattern1]' '[Pattern2]'...\n\
+For more information use --help\n");
 }
 
 int str_len(const char *str)
@@ -60,7 +68,9 @@ int str_cmp(const char *cmp1, const char *cmp2)
 int which_param(const char *str)
 {
     if(str_cmp(str, "--help"))
-        return help_param;
+        return help_full_param;
+    else if(str_cmp(str, "-h"))
+        return help_short_param;
     else if(str_cmp(str, "-qc") || str_cmp(str, "-cq"))
         return qnc_param;
     else if(str_cmp(str, "-q")  || str_cmp(str, "--quiet"))
@@ -119,13 +129,17 @@ int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
     *pattern   = 0;
     for(int i = 1; argv[i]; i++) {
         switch(which_param(argv[i])) {
-            case help_param:
-                help();
+            case help_full_param:
+                help_full();
                 *file = 0;
                 /* 
-                * Mean func completed
+                * 111 mean func completed
                 * successfully, goto quit
                 */
+                return 111; 
+            case help_short_param:
+                help_short();
+                *file = 0;
                 return 111; 
             case qnc_param:
                 *quiet = 1;
