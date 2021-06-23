@@ -316,6 +316,7 @@ int main(int argc, char **argv)
         pat[i] = malloc(sizeof(char)*word_buffer_size);
     char *word = malloc(sizeof(char)*word_buffer_size);
 /* Init */
+    /* Param */
     res = init_param(&quiet, &any_cases, &file, &pattern, argv); 
     /* 
      * init_param() return 111 
@@ -327,11 +328,13 @@ int main(int argc, char **argv)
         exit_status = 1;
         goto quit;
     }
+    /* File */
     res = init_file(&file, f, fname, argv);
     if(!res) {
         exit_status = 2;
         goto quit;
     }
+    /* Pattern */
     res = init_pattern(&pattern, pat, argv);
     if(!res) {
         exit_status = 3;
