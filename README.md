@@ -1,10 +1,10 @@
-# **MFT** - *matches from text* v1.20
+# **MFT** - *matchings from text* v1.20
 
 ## Install
 
 ```bash
-git clone https://github.com/17sean/mft.git
-cd mft/src
+git clone https://github.com/17sean/matchings-from-text.git
+cd matchings-from-text/src
 gcc main.c -o mft
 ```
 
@@ -25,7 +25,7 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ### Params
 
 -h, --help      = show help <br>
--q, --quiet     = show matches without line and position <br>
+-q, --quiet     = show matchings without line and position <br>
 -c, --any-cases = do not care about lowercase or uppercase <br>
 -qc, -cq        = --quiet and --any-cases in one param <br>
 -f, --file      = declare files to search <br>
@@ -46,7 +46,7 @@ Examples:
 
 ### Updates
 
-- Search for matches from any file
+- Search for matchings from any file
 - Add any cases param
 - Add short help '-h'
 - Add check.sh for tests
