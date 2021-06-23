@@ -114,8 +114,38 @@ int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
     return 1;
 }
 
-int init_file()
+int init_file(int *file, FILE **f, char **fname, char **argv)
 {
+    /*
+     * If we have "-f" param
+     * then we are looking for it
+     * and open streams.
+     */
+    int i, k;
+    if(*file) {
+        for(i = 0; whichparam(argv[i]) != file_param; i++)
+            {}
+        i++;
+        for(k = 0; argv[i] && !whichparam(argv[i]) &&
+                                            k < files_buffer_size; i++, k++) {
+            f[k] = fopen(argv[i], "r");
+            if(!f[k]) {
+                perror(argv[i]);
+                *file = k;
+                return 0;
+            }
+            str_cpy(argv[i], fname[k], word_buffer_size);
+        }
+        *file = k;    /* k is number of files */
+    }
+    /*
+     * If don`t have -f param or
+     * nothing after param  
+     */
+    if(!(*file)) {
+        f[0] = stdin;
+        *file = 1;
+    }
     return 1; 
 }
 
@@ -259,36 +289,9 @@ int main(int argc, char **argv)
         exit_status = 1;
         goto quit;
     }
-    /*
-     * If we have "-f" param
-     * then we are looking for it
-     * and open streams.
-     */
-    if(file) {
-        for(i = 0; whichparam(argv[i]) != file_param; i++)
-            {}
-        i++;
-        for(k = 0; argv[i] && !whichparam(argv[i]) &&
-                                            k < files_buffer_size; i++, k++) {
-            f[k] = fopen(argv[i], "r");
-            if(!f[k]) {
-                perror(argv[i]);
-                file = k;
-                exit_status = 2;
-                goto quit;
-            }
-            str_cpy(argv[i], fname[k], word_buffer_size);
-        }
-        file = k;    /* k is number of files */
-    }
-    /*
-     * If don`t have -f param or
-     * nothing after param  
-     */
-    if(!file) {
-        f[0] = stdin;
-        file = 1;
-    }
+    res = init_file(&file, f, fname, argv);
+    if(!res)
+        goto quit;
     /*
      * If we have "-p" param
      * then we are looking for it.
