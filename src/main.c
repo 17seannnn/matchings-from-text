@@ -290,8 +290,10 @@ int main(int argc, char **argv)
         goto quit;
     }
     res = init_file(&file, f, fname, argv);
-    if(!res)
+    if(!res) {
+        exit_status = 2;
         goto quit;
+    }
     /*
      * If we have "-p" param
      * then we are looking for it.
