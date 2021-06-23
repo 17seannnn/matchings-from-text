@@ -75,6 +75,42 @@ int whichparam(const char *str)
         return 0;
 }
 
+void preprocess(char *pat)
+{
+/* Add '*' to the beginning for better search */
+    int i = str_len(pat) + 1;
+    if(i >= word_buffer_size) {
+        i = word_buffer_size - 1;
+        pat[i] = 0;
+        i--;
+    }
+    for(; i > 0; i--)
+        pat[i] = pat[i-1];
+    pat[0] = '*';
+/* Change to special characters to match */
+    for(; *pat; pat++) {
+        if((*pat == '*' || *pat == '?') && *(pat-1) == '\\') {
+            switch(*pat) {
+                case '*':
+                    *pat = star_replace;
+                    break;
+                case '?':
+                    *pat = question_replace;
+                    break;
+            }
+            *(pat-1) = empty_replace;
+        }
+    }
+}
+
+int isletter(char c)
+{
+    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+        return 1;
+    else
+        return 0;
+}
+
 int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
 {
     *quiet     = 0;
@@ -149,45 +185,33 @@ int init_file(int *file, FILE **f, char **fname, char **argv)
     return 1; 
 }
 
-int init_pattern()
+int init_pattern(int *pattern, char **pat, char **argv)
 {
-    return 1;
-}
-
-int isletter(char c)
-{
-    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-        return 1;
-    else
+    /*
+     * If we have "-p" param
+     * then we are looking for it.
+     * Else skip all params
+     */
+    int i, k;
+    if(*pattern) {
+        for(i = 1; whichparam(argv[i]) != pattern_param; i++)
+            {}
+        i++;
+    } else {
+        for(i = 1; argv[i] && whichparam(argv[i]); i++)
+            {}
+    }
+    for(k = 0; argv[i] && !whichparam(argv[i]) &&
+                                        k < patterns_buffer_size; i++, k++) {
+        str_cpy(argv[i], pat[k], word_buffer_size);
+        preprocess(pat[k]);
+    }
+    *pattern = k;    /* k is number of patterns */
+    if(!(*pattern)) {
+        fprintf(stderr, "Error: No patterns given\n");
         return 0;
-}
-
-void preprocess(char *pat)
-{
-/* Add '*' to the beginning for better search */
-    int i = str_len(pat) + 1;
-    if(i >= word_buffer_size) {
-        i = word_buffer_size - 1;
-        pat[i] = 0;
-        i--;
     }
-    for(; i > 0; i--)
-        pat[i] = pat[i-1];
-    pat[0] = '*';
-/* Change to special characters to match */
-    for(; *pat; pat++) {
-        if((*pat == '*' || *pat == '?') && *(pat-1) == '\\') {
-            switch(*pat) {
-                case '*':
-                    *pat = star_replace;
-                    break;
-                case '?':
-                    *pat = question_replace;
-                    break;
-            }
-            *(pat-1) = empty_replace;
-        }
-    }
+    return 1;
 }
 
 int catch(char *word, int *is_ln, int *is_eof, int *line, int *pos, FILE *f)
@@ -280,7 +304,7 @@ int main(int argc, char **argv)
 /* Init */
     res = init_param(&quiet, &any_cases, &file, &pattern, argv); 
     /* 
-     * func return 111 
+     * init_param() return 111 
      * when find help param
      */
     if(res == 111) {
@@ -294,27 +318,8 @@ int main(int argc, char **argv)
         exit_status = 2;
         goto quit;
     }
-    /*
-     * If we have "-p" param
-     * then we are looking for it.
-     * Else skip all params
-     */
-    if(pattern) {
-        for(i = 1; whichparam(argv[i]) != pattern_param; i++)
-            {}
-        i++;
-    } else {
-        for(i = 1; argv[i] && whichparam(argv[i]); i++)
-            {}
-    }
-    for(k = 0; argv[i] && !whichparam(argv[i]) &&
-                                        k < patterns_buffer_size; i++, k++) {
-        str_cpy(argv[i], pat[k], word_buffer_size);
-        preprocess(pat[k]);
-    }
-    pattern = k;    /* k is number of patterns */
-    if(!pattern) {
-        fprintf(stderr, "Error: No patterns given\n");
+    res = init_pattern(&pattern, pat, argv);
+    if(!res) {
         exit_status = 3;
         goto quit;
     }
