@@ -13,9 +13,9 @@ enum {
        help_short_param     = 2,
        version_full_param   = 3,
        version_short_param  = 4,
-       qnc_param            = 5,
+       qni_param            = 5,
        quiet_param          = 6,
-       any_cases_param      = 7,
+       ignore_case_param    = 7,
        file_param           = 8,
        pattern_param        = 9,
 
@@ -106,12 +106,12 @@ int which_param(const char *str)
         return version_full_param;
     else if(str_cmp(str, "-v"))
         return version_short_param;
-    else if(str_cmp(str, "-qc") || str_cmp(str, "-cq"))
-        return qnc_param;
+    else if(str_cmp(str, "-qi") || str_cmp(str, "-iq"))
+        return qni_param;
     else if(str_cmp(str, "-q")  || str_cmp(str, "--quiet"))
         return quiet_param;
-    else if(str_cmp(str, "-c")  || str_cmp(str, "--any-cases"))
-        return any_cases_param;
+    else if(str_cmp(str, "-i")  || str_cmp(str, "--ignore-case"))
+        return ignore_case_param;
     else if(str_cmp(str, "-f")  || str_cmp(str, "--file"))
         return file_param;
     else if(str_cmp(str, "-p")  || str_cmp(str, "--pattern"))
@@ -156,10 +156,11 @@ void preprocess(char *pat)
     }
 }
 
-int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
+int
+init_param(int *quiet, int *ignore_case, int *file, int *pattern, char **argv)
 {
     *quiet     = 0;
-    *any_cases = 0;
+    *ignore_case = 0;
     *file      = 0;
     *pattern   = 0;
     for(int i = 1; argv[i]; i++) {
@@ -184,14 +185,14 @@ int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
                 version_short();
                 *file = 0;
                 return 111; 
-            case qnc_param:
+            case qni_param:
                 *quiet = 1;
-                *any_cases = 1;
+                *ignore_case = 1;
                 break;
-            case quiet_param:     *quiet = 1;     break;
-            case any_cases_param: *any_cases = 1; break;
-            case file_param:      *file = 1;      break;
-            case pattern_param:   *pattern = 1;   break;
+            case quiet_param:       *quiet = 1;         break;
+            case ignore_case_param: *ignore_case = 1;   break;
+            case file_param:        *file = 1;          break;
+            case pattern_param:     *pattern = 1;       break;
         }
     }
     /*
@@ -303,7 +304,7 @@ int catch(char *word, int *is_ln, int *is_eof, int *line, int *pos, FILE *f)
     return 1;
 }
 
-int match(const char *str, const char *pat, int any_cases)
+int match(const char *str, const char *pat, int ignore_case)
 {
     for(;; str++, pat++) {
         switch(*pat) {
@@ -311,7 +312,7 @@ int match(const char *str, const char *pat, int any_cases)
                 return 1;
             case '*':
                 for(;; str++) {
-                    if(match(str, pat+1, any_cases))
+                    if(match(str, pat+1, ignore_case))
                         return 1;
                     else if(!*str)
                         return 0;
@@ -333,7 +334,7 @@ int match(const char *str, const char *pat, int any_cases)
                 break;
             default:
                 if(*str != *pat) {
-                    if(any_cases && is_letter(*str) && is_letter(*pat)) {
+                    if(ignore_case && is_letter(*str) && is_letter(*pat)) {
                         if(*str != *pat - 32 && *str != *pat + 32)
                             return 0;
                     } else
@@ -348,7 +349,7 @@ int main(int argc, char **argv)
     int exit_status = 0;
     int i, k; /* For loops */
     int res, is_ln, is_eof, line, pos; /* Main vars */
-    int quiet, any_cases, file, pattern; /* Params */
+    int quiet, ignore_case, file, pattern; /* Params */
 /* Allocate mem */
     FILE **f = malloc(sizeof(FILE*)*files_buffer_size);
     char **fname = malloc(sizeof(char*)*files_buffer_size);
@@ -360,7 +361,7 @@ int main(int argc, char **argv)
     char *word = malloc(sizeof(char)*word_buffer_size);
 /* Init */
     /* Param */
-    res = init_param(&quiet, &any_cases, &file, &pattern, argv); 
+    res = init_param(&quiet, &ignore_case, &file, &pattern, argv); 
     /* 
      * init_param() return 111 
      * when find help param
@@ -399,7 +400,7 @@ int main(int argc, char **argv)
              */
             if(res) {
                 for(k = 0; k < pattern; k++) {
-                    if(match(word, pat[k], any_cases)) {
+                    if(match(word, pat[k], ignore_case)) {
                         if(quiet)
                             printf("%s\n", word);
                         else
