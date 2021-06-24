@@ -22,20 +22,20 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ```
 
 ### Params
--h, --help        = show help <br>
--v, --version     = show version <br>
--q, --quiet       = show matchings without file name, line and pos <br>
--i, --ignore-case = ignore uppercase and lowercase <br>
--qi, -iq          = --quiet and --ignore-case in one param <br>
--f, --file        = declare files to search <br>
--p, --pattern     = declare patterns to match
+-h, --help        = show help. <br>
+-v, --version     = show version. <br>
+-q, --quiet       = show matchings without file name, line and pos. <br>
+-i, --ignore-case = ignore uppercase and lowercase. <br>
+-qi, -iq          = --quiet and --ignore-case in one param. <br>
+-f, --file        = declare files to search. <br>
+-p, --pattern     = declare patterns to match.
 
 ## Patterns
 ### Special characters for patterns
 
-'**\***' = any characters of any length <br>
-'**?**' = any character, but can not be empty <br>
-'**\\**' = place it before \* and ? for finding star and question mark
+'**\***' = any character string of any length. <br>
+'**?**' = any character, but can not be empty. <br>
+'**\\**' = place it before \* and ? for finding star and question mark.
 
 ### Examples
 ```bash
@@ -44,9 +44,9 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 
 ## Updates
 
-- Search for matchings from any file
-- Add ignore case param
-- Add version params
-- Add short help '-h'
-- Add check.sh for tests
-- Fix bugs
+- Search for matchings from any file.
+- Add ignore case param.
+- Add version params.
+- Add short help '-h'.
+- Add check.sh for tests.
+- Fix bugs.

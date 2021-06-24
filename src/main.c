@@ -29,18 +29,18 @@ void help_full()
     printf("\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\n\
 Params\n\
-        -h, --help        = show help\n\
-        -v, --version     = show version\n\
-        -q, --quiet       = show matchings without file name, line and pos\n\
-        -i, --ignore-case = ignore lowercase and uppercase\n\
-        -qi, -iq          = --quiet and --ignore-case in one param\n\
-        -f, --file        = declare files to search\n\
-        -p, --pattern     = declare patterns to match\n\n\
+        -h, --help        = show help.\n\
+        -v, --version     = show version.\n\
+        -q, --quiet       = show matchings without file name, line and pos.\n\
+        -i, --ignore-case = ignore lowercase and uppercase.\n\
+        -qi, -iq          = --quiet and --ignore-case in one param.\n\
+        -f, --file        = declare files to search.\n\
+        -p, --pattern     = declare patterns to match.\n\n\
 Patterns\n\
     Special characters for patterns\n\
-        '*' = any characters of any length\n\
-        '?' = any character, but can not be empty\n\
-        '\\' = place it before * and ? for finding star and question mark\n\
+        '*' = any character string of any length.\n\
+        '?' = any character, but can not be empty.\n\
+        '\\' = place it before * and ? for finding star and question mark.\n\
     Examples\n\
         '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
 If you find bugs:  17seannnn@gmail.com\n\
@@ -51,7 +51,7 @@ void help_short()
 {
     printf("\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\
-For more information use --help\n");
+For more information use '--help'.\n");
 }
 
 void version_full()
@@ -60,7 +60,7 @@ void version_full()
 mft (matchings-from-text) v%d.%d\n\
 Copyright (c) 2021 17sean\n\
 License MIT: <https://opensource.org/licenses/MIT>\n\n\
-Written by 17sean\n\
+Written by 17sean.\n\
 Github: <https://github.com/17sean>\n",
 mft_version_main, mft_version_other);
 }
@@ -69,7 +69,7 @@ void version_short()
 {
     printf("\
 mft (matchings-from-text) v%d.%d\n\
-For more information use --version\n",
+For more information use '--version'.\n",
 mft_version_main, mft_version_other);
 }
 
