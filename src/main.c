@@ -22,19 +22,20 @@ void help_full()
     printf("\
 *** Matchings From Text 1.20 ***\n\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\n\
-Params:\n\
+Params\n\
         -h, --help      = show help\n\
         -q, --quiet     = show matchings without line and position\n\
         -c, --any-cases = do not care about lowercase or uppercase\n\
         -qc, -cq        = --quiet and --any-cases in one param\n\
         -f, --file      = declare files to search\n\
         -p, --pattern   = declare patterns to match\n\n\
-Patterns:\n\
+Patterns\n\
+    Special characters for patterns\n\
         '*' = any characters of any length\n\
-        '?' = any character, but cannot be empty\n\
+        '?' = any character, but can not be empty\n\
         '\\' = place it before * and ? for finding star and question mark\n\
-Examples:\n\
-'?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
+    Examples\n\
+        '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
 If you find bugs - 17seannnn@gmail.com\n\
 Author:            https://github.com/17sean\n");
 }

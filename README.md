@@ -1,7 +1,6 @@
 # **MFT** - *matchings from text* v1.20
 
 ## Install
-
 ```bash
 git clone https://github.com/17sean/matchings-from-text.git
 cd matchings-from-text/src
@@ -9,12 +8,12 @@ gcc main.c -o mft
 ```
 
 ## How to use it?
-
+### Usage
 ```bash
 ./mft -[PARAMs] '[Pattern1]' '[Pattern2]'...
 ```
-Then you can enter the string
-or try something like this:
+
+### Examples
 ```bash
 ./mft -f ../test/linepos.txt -p '\'
 ./mft -c -f ../test/any_cases.txt -p '?orem'
@@ -23,28 +22,26 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ```
 
 ### Params
-
 -h, --help      = show help <br>
--q, --quiet     = show matchings without line and position <br>
+-q, --quiet     = show matchings without file name, line and position <br>
 -c, --any-cases = do not care about lowercase or uppercase <br>
 -qc, -cq        = --quiet and --any-cases in one param <br>
 -f, --file      = declare files to search <br>
 -p, --pattern   = declare patterns to match
 
-### Patterns
-
-Special characters for patterns:
+## Patterns
+### Special characters for patterns
 
 '**\***' = any characters of any length <br>
-'**?**' = any character, but cannot be empty <br>
+'**?**' = any character, but can not be empty <br>
 '**\\**' = place it before \* and ? for finding star and question mark
 
-Examples:
+### Examples
 ```bash
 '?orem' 'b*ye' 'questions\?' '\*stars\*' '\'
 ```
 
-### Updates
+## Updates
 
 - Search for matchings from any file
 - Add any cases param
