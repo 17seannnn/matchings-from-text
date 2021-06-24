@@ -27,7 +27,6 @@ enum {
 void help_full()
 {
     printf("\
-*** Matchings From Text v%d.%d ***\n\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\n\
 Params\n\
         -h, --help      = show help\n\
@@ -43,9 +42,8 @@ Patterns\n\
         '\\' = place it before * and ? for finding star and question mark\n\
     Examples\n\
         '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
-If you find bugs - 17seannnn@gmail.com\n\
-Author:            https://github.com/17sean\n",
-mft_version_main, mft_version_other);
+If you find bugs:  17seannnn@gmail.com\n\
+mft home page:     <https://github.com/17sean/matchings-from-text>\n");
 }
 
 void help_short()
