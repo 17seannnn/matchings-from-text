@@ -14,6 +14,16 @@ echo "PARAMTEST -h"
 ./../src/mft -h
 echo ""
 
+# With --version
+echo "PARAMTEST --version"
+./../src/mft --version
+echo ""
+
+# With -v
+echo "PARAMTEST -v"
+./../src/mft -v
+echo ""
+
 # With -q
 echo "PARAMTEST -q"
 cat linepos.txt | ./../src/mft -q '?orem'
@@ -24,14 +34,24 @@ echo "PARAMTEST --quiet"
 cat linepos.txt | ./../src/mft --quiet '?orem'
 echo ""
 
-# With -c
-echo "PARAMTEST -c"
-cat any_cases.txt | ./../src/mft -c '?orem'
+# With -i
+echo "PARAMTEST -i"
+cat ignore_case.txt | ./../src/mft -i '?orem'
 echo ""
 
-# With --any-cases
-echo "PARAMTEST --any-cases"
-cat any_cases.txt | ./../src/mft --any-cases '?orem'
+# With --ignore-case
+echo "PARAMTEST --ignore-case"
+cat ignore_case.txt | ./../src/mft --ignore-case '?orem'
+echo ""
+
+# With -qi
+echo "PARAMTEST -qi"
+cat ignore_case.txt | ./../src/mft -qi '?orem'
+echo ""
+
+# With -iq
+echo "PARAMTEST -iq"
+cat ignore_case.txt | ./../src/mft -iq '?orem'
 echo ""
 
 # With -f and -p
