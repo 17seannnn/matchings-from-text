@@ -24,7 +24,7 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ### Params
 -h, --help        = show help <br>
 -v, --version     = show version <br>
--q, --quiet       = show matchings without file name, line and position <br>
+-q, --quiet       = show matchings without file name, line and pos <br>
 -i, --ignore-case = ignore uppercase and lowercase <br>
 -qi, -iq          = --quiet and --ignore-case in one param <br>
 -f, --file        = declare files to search <br>

@@ -3,7 +3,7 @@
 
 enum {
        mft_version_main     = 1,
-       mft_version_other    = 20,
+       mft_version_other    = 21,
 
        files_buffer_size    = 64,
        patterns_buffer_size = 64,
@@ -29,12 +29,13 @@ void help_full()
     printf("\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\n\
 Params\n\
-        -h, --help      = show help\n\
-        -q, --quiet     = show matchings without file name, line and position\n\
-        -c, --any-cases = do not care about lowercase or uppercase\n\
-        -qc, -cq        = --quiet and --any-cases in one param\n\
-        -f, --file      = declare files to search\n\
-        -p, --pattern   = declare patterns to match\n\n\
+        -h, --help        = show help\n\
+        -v, --version     = show version\n\
+        -q, --quiet       = show matchings without file name, line and pos\n\
+        -i, --ignore-case = ignore lowercase and uppercase\n\
+        -qi, -iq          = --quiet and --ignore-case in one param\n\
+        -f, --file        = declare files to search\n\
+        -p, --pattern     = declare patterns to match\n\n\
 Patterns\n\
     Special characters for patterns\n\
         '*' = any characters of any length\n\
