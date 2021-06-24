@@ -1,4 +1,4 @@
-# **MFT** - *matchings from text* v1.20
+# **MFT** - *matchings from text* v1.21
 
 ## Install
 ```bash
@@ -16,18 +16,19 @@ gcc main.c -o mft
 ### Examples
 ```bash
 ./mft -f ../test/linepos.txt -p '\'
-./mft -c -f ../test/any_cases.txt -p '?orem'
+./mft -i -f ../test/ignore_case.txt -p '?orem'
 ./mft -q -f ../test/text.txt -p 'lorem'
 cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ```
 
 ### Params
--h, --help      = show help <br>
--q, --quiet     = show matchings without file name, line and position <br>
--c, --any-cases = do not care about lowercase or uppercase <br>
--qc, -cq        = --quiet and --any-cases in one param <br>
--f, --file      = declare files to search <br>
--p, --pattern   = declare patterns to match
+-h, --help        = show help <br>
+-v, --version     = show version <br>
+-q, --quiet       = show matchings without file name, line and position <br>
+-i, --ignore-case = ignore uppercase and lowercase <br>
+-qi, -iq          = --quiet and --ignore-case in one param <br>
+-f, --file        = declare files to search <br>
+-p, --pattern     = declare patterns to match
 
 ## Patterns
 ### Special characters for patterns
@@ -44,7 +45,8 @@ cat ../test/text.txt | ./mft 'lorem' '\?' 'u*a'
 ## Updates
 
 - Search for matchings from any file
-- Add any cases param
+- Add ignore case param
+- Add version params
 - Add short help '-h'
 - Add check.sh for tests
 - Fix bugs
