@@ -199,7 +199,7 @@ init_param(int *quiet, int *ignore_case, int *file, int *pattern, char **argv)
     }
     /*
      * If we have -f param but dont have -p
-     * then mft cannot understand where
+     * then mft can not understand where
      * exactly the patterns are.
      */
     if(*file && !(*pattern)) {
