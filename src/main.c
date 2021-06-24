@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum { files_buffer_size    = 64,
+enum {
+       mft_version_main     = 1,
+       mft_version_other    = 20,
+
+       files_buffer_size    = 64,
        patterns_buffer_size = 64,
        word_buffer_size     = 1024,
 
@@ -15,16 +19,17 @@ enum { files_buffer_size    = 64,
 
        star_replace         = 1,
        question_replace     = 2,
-       empty_replace        = 3 };
+       empty_replace        = 3
+     };
 
 void help_full()
 {
     printf("\
-*** Matchings From Text 1.20 ***\n\
+*** Matchings From Text v%d.%d ***\n\
 Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\n\
 Params\n\
         -h, --help      = show help\n\
-        -q, --quiet     = show matchings without line and position\n\
+        -q, --quiet     = show matchings without file name, line and position\n\
         -c, --any-cases = do not care about lowercase or uppercase\n\
         -qc, -cq        = --quiet and --any-cases in one param\n\
         -f, --file      = declare files to search\n\
@@ -37,7 +42,8 @@ Patterns\n\
     Examples\n\
         '?orem' 'b*ye' 'questions\\?' '\\*stars\\*' '\\'\n\n\
 If you find bugs - 17seannnn@gmail.com\n\
-Author:            https://github.com/17sean\n");
+Author:            https://github.com/17sean\n",
+mft_version_main, mft_version_other);
 }
 
 void help_short()
