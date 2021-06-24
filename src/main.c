@@ -11,11 +11,13 @@ enum {
 
        help_full_param      = 1,
        help_short_param     = 2,
-       qnc_param            = 3,
-       quiet_param          = 4,
-       any_cases_param      = 5,
-       file_param           = 6,
-       pattern_param        = 7,
+       version_full_param   = 3,
+       version_short_param  = 4,
+       qnc_param            = 5,
+       quiet_param          = 6,
+       any_cases_param      = 7,
+       file_param           = 8,
+       pattern_param        = 9,
 
        star_replace         = 1,
        question_replace     = 2,
@@ -53,6 +55,16 @@ Usage: mft -[PARAMs] '[Pattern1]' '[Pattern2]'...\n\
 For more information use --help\n");
 }
 
+void version_full()
+{
+    printf("Full version");
+}
+
+void version_short()
+{
+    printf("Short version");
+}
+
 int str_len(const char *str)
 {
     const char *tmp;
@@ -84,6 +96,10 @@ int which_param(const char *str)
         return help_full_param;
     else if(str_cmp(str, "-h"))
         return help_short_param;
+    else if(str_cmp(str, "--version"))
+        return version_full_param;
+    else if(str_cmp(str, "-v"))
+        return version_short_param;
     else if(str_cmp(str, "-qc") || str_cmp(str, "-cq"))
         return qnc_param;
     else if(str_cmp(str, "-q")  || str_cmp(str, "--quiet"))
@@ -152,6 +168,14 @@ int init_param(int *quiet, int *any_cases, int *file, int *pattern, char **argv)
                 return 111; 
             case help_short_param:
                 help_short();
+                *file = 0;
+                return 111; 
+            case version_full_param:
+                version_full();
+                *file = 0;
+                return 111; 
+            case version_short_param:
+                version_short();
                 *file = 0;
                 return 111; 
             case qnc_param:
