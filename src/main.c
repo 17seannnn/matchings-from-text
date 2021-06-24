@@ -57,12 +57,20 @@ For more information use --help\n");
 
 void version_full()
 {
-    printf("Full version");
+    printf("\
+mft (matchings-from-text) v%d.%d\n\
+Copyright (c) 2021 17sean\n\
+License MIT: <https://opensource.org/licenses/MIT>\n\n\
+Written by 17sean\n\
+Github: <https://github.com/17sean>\n",
+mft_version_main, mft_version_other);
 }
 
 void version_short()
 {
-    printf("Short version");
+    printf("\
+mft (matchings-from-text) v%d.%d\n",
+mft_version_main, mft_version_other);
 }
 
 int str_len(const char *str)
