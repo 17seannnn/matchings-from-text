@@ -67,7 +67,8 @@ mft_version_main, mft_version_other);
 void version_short()
 {
     printf("\
-mft (matchings-from-text) v%d.%d\n",
+mft (matchings-from-text) v%d.%d\n\
+For more information use --version\n",
 mft_version_main, mft_version_other);
 }
 
